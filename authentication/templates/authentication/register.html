@@ -1,0 +1,21 @@
+
+
+<div>
+  <form method="POST" >
+    {% csrf_token %}
+    </fieldset>
+      <legend >Join Today</legend>
+      {{ form}}
+    </fieldset>
+    <div>
+      <button type="submit">Submit</button>
+    </div>
+  </form>
+  <div >
+      <small>
+      Already have a account? 
+      <a href='{% url 'login' %}'>Sign in</a>
+    </small>
+  </div>
+</div>
+
