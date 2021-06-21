@@ -21,7 +21,7 @@
 ### Api endpoints
 * `/register` - **To register a new user**
 * `/login` - **To login the currently registered user**
-* `/logout` - *To logout currently logined user**
+* `/logout` - **To logout currently logined user**
 * `/liveclass` - **It is a get request to list all the details of live classes**
 * `/liveclass/id` - **It is post, update and delete request relevant to the liveclass and can only be done by the superuser**
 * `/saved` - **This endpoints enables the current user to see his/her saved classes and add more class to the saved database**
