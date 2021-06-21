@@ -1,4 +1,4 @@
-
+from django.shortcuts import redirect
 from rest_framework import mixins
 from rest_framework import generics
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -87,6 +87,7 @@ class ListUserDetails(mixins.ListModelMixin, LoginRequiredMixin, generics.Generi
 class SavedClassView(LoginRequiredMixin, mixins.ListModelMixin, mixins.CreateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
 
     serializer_class = serializers.SavedClass_serializer
+    lookup_field = 'id'
 
     def get_queryset(self):
         user = self.request.user
@@ -104,7 +105,29 @@ class SavedClassView(LoginRequiredMixin, mixins.ListModelMixin, mixins.CreateMod
         cur_user = self.request.user
         if int(request.POST.get('user')) != self.request.user.id:
                 return Response(status=status.HTTP_403_FORBIDDEN)
-        return self.create(request) 
+        return self.create(request)
+    
+
+class SavedClassDeleteView(LoginRequiredMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin,mixins.DestroyModelMixin, generics.GenericAPIView) :
+
+    serializer_class = serializers.SavedClass_serializer
+    lookup_field = 'id'
+    # queryset = models.SavedClass.objects.filter(user=self.request.user.id)
+    def get_queryset(self):
+        user = self.request.user
+        return models.SavedClass.objects.filter(user=self.request.user.id)
+
+    def get(self, request, id=None):
+        if id:
+            return self.retrieve(request, id)
+        return Response("no content", status=status.HTTP_204_NO_CONTENT)
+    
+    def delete(self, request, id=None):
+        try:
+             self.destroy(request, id)
+             return redirect('saved')
+        except Exception as e:
+            return Response(Exception, status=status.HTTP_400_BAD_REQUEST)
    
     
 @login_required
@@ -136,14 +159,23 @@ def RegisterClassId(request, id):
 @login_required
 @api_view(['GET'])
 def RegisterClass(request):
-    print(type(request.user))
     registered_classes = models.RegisteredClass.objects.filter(user=request.user)
     serializer = serializers.Registered_serializer(registered_classes, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+class DoubtClass(LoginRequiredMixin, mixins.ListModelMixin, generics.GenericAPIView):
 
-        
+    serializer_class = serializers.LiveClass_details_serializer
 
+    def get_queryset(self):
+        return models.LiveClass_details.objects.filter(isDoubtClass = True)
+    
+    def get(self, request):
+        return self.list(request)
 
     
+
+    
+
+

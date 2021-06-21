@@ -51,7 +51,7 @@ class LiveClass_details(models.Model):
         verbose_name_plural = 'LiveClass_details'
         
     def __str__(self):
-        return self.chapter_name
+        return self.chapter_name + " doubtClass: " + str(self.isDoubtClass)
     
     
     
@@ -61,6 +61,7 @@ class SavedClass(models.Model):
     
     class Meta: 
         verbose_name_plural = 'SavedClasses'
+        unique_together = ['class_details', 'user']
     
     def __str__(self):
         return 'SavedClass : ' + str(self.class_details)
