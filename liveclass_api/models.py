@@ -4,6 +4,8 @@ import datetime
 from django.utils import timezone
     # Create your models here.
     
+
+# model to store Class standard and can be added certain things that are specific to the standard
 class LiveClass(models.Model):
 
     standard = models.IntegerField()
@@ -14,6 +16,7 @@ class LiveClass(models.Model):
     def __str__(self):
         return str(self.standard) + ' class'
     
+# contains current user details
 class User_details(models.Model):
     name = models.OneToOneField(User, on_delete = models.CASCADE, max_length=30)
     standard = models.IntegerField(default=0)
@@ -26,6 +29,8 @@ class User_details(models.Model):
     def __str__(self):
         return str(self.name)
     
+
+#live class mentors details
 class Mentor(models.Model):
     name = models.CharField(max_length=30)
     details = models.TextField()
@@ -36,6 +41,7 @@ class Mentor(models.Model):
     def __str__(self):
         return self.name
     
+# live class details model containing all relevant information possible for the class
 class LiveClass_details(models.Model):
     standard = models.ForeignKey(LiveClass, on_delete=models.CASCADE)
     chapter_name = models.CharField(max_length=30)
@@ -45,6 +51,7 @@ class LiveClass_details(models.Model):
     end_time = models.DateTimeField(default=timezone.now())
     isDoubtClass = models.BooleanField(default=False)
     doubtsAddressed = models.IntegerField(default=0)
+    isDraft = models.BooleanField(default=True)
     no_of_students_registered = models.IntegerField(default=0)
     no_of_students_attended = models.IntegerField(default=0)
     class Meta:
@@ -54,7 +61,8 @@ class LiveClass_details(models.Model):
         return self.chapter_name + " doubtClass: " + str(self.isDoubtClass)
     
     
-    
+#list of saved classes by the students
+
 class SavedClass(models.Model):
     class_details = models.ForeignKey(LiveClass_details, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -66,6 +74,7 @@ class SavedClass(models.Model):
     def __str__(self):
         return 'SavedClass : ' + str(self.class_details)
     
+#list of registered classes by the students
 class RegisteredClass(models.Model):
     class_details = models.ForeignKey(LiveClass_details, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)

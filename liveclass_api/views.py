@@ -8,6 +8,8 @@ from rest_framework.response import Response
 from django.contrib.auth.decorators import login_required
 from rest_framework.decorators import api_view
 from django.http import HttpResponse, JsonResponse
+from django.utils import timezone
+from datetime import datetime
 
 
 
@@ -15,17 +17,13 @@ from . import serializers
 from . import models
 # Create your views here.
 
-class ListLiveClass(mixins.ListModelMixin, LoginRequiredMixin, generics.GenericAPIView):
-    queryset = models.LiveClass_details.objects.all()
-    serializer_class = serializers.LiveClass_details_serializer
-    def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
 
+# This view enables the user to see and create a liveclass but creation can only be done by the superuser
 class LiveClassView(mixins.ListModelMixin,
                     mixins.CreateModelMixin,
                     LoginRequiredMixin,
                     generics.GenericAPIView):
-    queryset = models.LiveClass_details.objects.all()
+    queryset = models.LiveClass_details.objects.filter(isDraft = False)
     serializer_class = serializers.LiveClass_details_serializer
     
     def get(self, request, *args, **kwargs):
@@ -36,6 +34,8 @@ class LiveClassView(mixins.ListModelMixin,
             return self.create(request, *args, **kwargs)
         else:
             return Response(status=status.HTTP_403_FORBIDDEN)
+
+## this view enables the superuser tom update or delete  a liveclass
 
 class LiveClassViewId(mixins.RetrieveModelMixin,
                     mixins.UpdateModelMixin,
@@ -66,6 +66,7 @@ class LiveClassViewId(mixins.RetrieveModelMixin,
             return Response(status=status.HTTP_403_FORBIDDEN)
 
 
+# this view will list all the mentors available
 class ListMentors(mixins.ListModelMixin, LoginRequiredMixin, generics.GenericAPIView):
     queryset = models.Mentor.objects.all()
     serializer_class = serializers.Mentor_serializer
@@ -73,7 +74,7 @@ class ListMentors(mixins.ListModelMixin, LoginRequiredMixin, generics.GenericAPI
         return self.list(request, *args, **kwargs)
 
 
-
+# this view will list all the users available
 class ListUserDetails(mixins.ListModelMixin, LoginRequiredMixin, generics.GenericAPIView):
     queryset = models.User_details.objects.all()
     serializer_class = serializers.User_details_serializer
@@ -82,8 +83,7 @@ class ListUserDetails(mixins.ListModelMixin, LoginRequiredMixin, generics.Generi
 
 
 
-#api endpoints to save  and register live classes 
-
+#View to see and add a new class to the saved classes
 class SavedClassView(LoginRequiredMixin, mixins.ListModelMixin, mixins.CreateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
 
     serializer_class = serializers.SavedClass_serializer
@@ -108,11 +108,11 @@ class SavedClassView(LoginRequiredMixin, mixins.ListModelMixin, mixins.CreateMod
         return self.create(request)
     
 
+#To delete a particular saved class
 class SavedClassDeleteView(LoginRequiredMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin,mixins.DestroyModelMixin, generics.GenericAPIView) :
 
     serializer_class = serializers.SavedClass_serializer
     lookup_field = 'id'
-    # queryset = models.SavedClass.objects.filter(user=self.request.user.id)
     def get_queryset(self):
         user = self.request.user
         return models.SavedClass.objects.filter(user=self.request.user.id)
@@ -130,6 +130,7 @@ class SavedClassDeleteView(LoginRequiredMixin, mixins.ListModelMixin, mixins.Ret
             return Response(Exception, status=status.HTTP_400_BAD_REQUEST)
    
     
+# to register and deregister a paricular live class 
 @login_required
 @api_view(['GET', 'DELETE'])
 def RegisterClassId(request, id):
@@ -141,7 +142,7 @@ def RegisterClassId(request, id):
             registered_live_class.no_of_students_registered += 1
             registered_live_class.save()
         except Exception as e:
-            print(e)
+            return Response("Already registered")
        
         return Response(status=status.HTTP_201_CREATED)
 
@@ -155,7 +156,8 @@ def RegisterClassId(request, id):
         return Response(status=status.HTTP_204_NO_CONTENT)
     
 
-    
+
+# to get all the registered classes for a particular user
 @login_required
 @api_view(['GET'])
 def RegisterClass(request):
@@ -174,8 +176,55 @@ class DoubtClass(LoginRequiredMixin, mixins.ListModelMixin, generics.GenericAPIV
     def get(self, request):
         return self.list(request)
 
+
+
+
+class ListDrafts(LoginRequiredMixin, mixins.ListModelMixin, generics.GenericAPIView):
+
+    serializer_class = serializers.LiveClass_details_serializer
+    queryset = models.LiveClass_details.objects.filter(isDraft=True)
+
+    def get(self, request):
+        if request.user.is_superuser:
+             return self.list(request)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+        
+
+
+class DraftClassId(LoginRequiredMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin,  mixins.UpdateModelMixin, generics.GenericAPIView):
+
+    serializer_class = serializers.LiveClass_details_serializer
+    queryset = models.LiveClass_details.objects.filter(isDraft=True)
+    lookup_field = 'id'
+
+    def get(self, request, id=None):
+        if request.user.is_superuser:
+            if id:
+                return self.retrieve(request, id)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        
     
+    def put(self, request, id=None):
+        if request.user.is_superuser:
+            if id:
+                return self.update(request, id)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+        
+
+    def delete(self, request, id=None):
+        if request.user.is_superuser:
+            if id:
+                return self.destroy(request, id)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+
+
+
+
 
     
-
 
