@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'liveclass_api',
     'authentication',
+    'Mentors',
 ]
 
 MIDDLEWARE = [
