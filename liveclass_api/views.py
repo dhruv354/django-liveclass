@@ -21,7 +21,6 @@ from . import models
 # This view enables the user to see and create a liveclass but creation can only be done by the superuser
 class LiveClassView(mixins.ListModelMixin,
                     mixins.CreateModelMixin,
-                    LoginRequiredMixin,
                     generics.GenericAPIView):
     queryset = models.LiveClass_details.objects.filter(isDraft = False)
     serializer_class = serializers.LiveClass_details_serializer
@@ -40,7 +39,6 @@ class LiveClassView(mixins.ListModelMixin,
 class LiveClassViewId(mixins.RetrieveModelMixin,
                     mixins.UpdateModelMixin,
                     mixins.DestroyModelMixin,
-                    LoginRequiredMixin,
                     generics.GenericAPIView):
     queryset = models.LiveClass_details.objects.all()
     serializer_class = serializers.LiveClass_details_serializer
@@ -67,7 +65,7 @@ class LiveClassViewId(mixins.RetrieveModelMixin,
 
 
 # this view will list all the mentors available
-class ListMentors(mixins.ListModelMixin, LoginRequiredMixin, generics.GenericAPIView):
+class ListMentors(mixins.ListModelMixin,  generics.GenericAPIView):
     queryset = models.Mentor.objects.all()
     serializer_class = serializers.Mentor_serializer
     def get(self, request, *args, **kwargs):
@@ -75,7 +73,7 @@ class ListMentors(mixins.ListModelMixin, LoginRequiredMixin, generics.GenericAPI
 
 
 # this view will list all the users available
-class ListUserDetails(mixins.ListModelMixin, LoginRequiredMixin, generics.GenericAPIView):
+class ListUserDetails(mixins.ListModelMixin, generics.GenericAPIView):
     queryset = models.User_details.objects.all()
     serializer_class = serializers.User_details_serializer
     def get(self, request, *args, **kwargs):
@@ -84,7 +82,7 @@ class ListUserDetails(mixins.ListModelMixin, LoginRequiredMixin, generics.Generi
 
 
 #View to see and add a new class to the saved classes
-class SavedClassView(LoginRequiredMixin, mixins.ListModelMixin, mixins.CreateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
+class SavedClassView(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
 
     serializer_class = serializers.SavedClass_serializer
     lookup_field = 'id'
@@ -109,7 +107,7 @@ class SavedClassView(LoginRequiredMixin, mixins.ListModelMixin, mixins.CreateMod
     
 
 #To delete a particular saved class
-class SavedClassDeleteView(LoginRequiredMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin,mixins.DestroyModelMixin, generics.GenericAPIView) :
+class SavedClassDeleteView(mixins.ListModelMixin, mixins.RetrieveModelMixin,mixins.DestroyModelMixin, generics.GenericAPIView) :
 
     serializer_class = serializers.SavedClass_serializer
     lookup_field = 'id'
@@ -131,7 +129,7 @@ class SavedClassDeleteView(LoginRequiredMixin, mixins.ListModelMixin, mixins.Ret
    
     
 # to register and deregister a paricular live class 
-@login_required
+
 @api_view(['GET', 'DELETE'])
 def RegisterClassId(request, id):
     if request.method == 'GET':
@@ -158,7 +156,7 @@ def RegisterClassId(request, id):
 
 
 # to get all the registered classes for a particular user
-@login_required
+
 @api_view(['GET'])
 def RegisterClass(request):
     registered_classes = models.RegisteredClass.objects.filter(user=request.user)
@@ -180,7 +178,7 @@ class ListDrafts(LoginRequiredMixin, mixins.ListModelMixin, generics.GenericAPIV
         
 
 # to update , view and delete a particular draft
-class DraftClassId(LoginRequiredMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin,  mixins.UpdateModelMixin, generics.GenericAPIView):
+class DraftClassId(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin,  mixins.UpdateModelMixin, generics.GenericAPIView):
 
     serializer_class = serializers.LiveClass_details_serializer
     queryset = models.LiveClass_details.objects.filter(isDraft=True)
@@ -214,7 +212,7 @@ class DraftClassId(LoginRequiredMixin, mixins.ListModelMixin, mixins.RetrieveMod
 
 #view that will list and create all doubtclasses
 
-class DoubtClass(LoginRequiredMixin, mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
+class DoubtClass( mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
 
     serializer_class = serializers.DoubtClass_serializer
     queryset = models.DoubtClasses.objects.all()
@@ -229,7 +227,7 @@ class DoubtClass(LoginRequiredMixin, mixins.ListModelMixin, mixins.CreateModelMi
             return Response(status=status.HTTP_403_FORBIDDEN)
 
 
-class DoubtClassId(LoginRequiredMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
+class DoubtClassId(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
     serializer_class = serializers.DoubtClass_serializer
     queryset = models.DoubtClasses.objects.all()
     lookup_field = 'id'
