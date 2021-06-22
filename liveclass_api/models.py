@@ -47,8 +47,25 @@ class ChapterNames(models.Model):
 
     def __str__(self):
         return self.chapter_names
+
+
+#model for doubt classes
+class DoubtClasses(models.Model):
+    doubtClass_details = models.TextField()
+    class_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+    doubtsAddressed = models.IntegerField(default=0)
+    no_of_students_registered = models.IntegerField(default=0)
+    no_of_students_attended = models.IntegerField(default=0)
+
+    class Meta:
+        verbose_name_plural = 'DoubtClasses'
     
-# live class details model containing all relevant information possible for the class
+    def __str__(self):
+        return self.doubtClass_details
+
+    
+# conceptual class details model containing all relevant information possible for the class
 class LiveClass_details(models.Model):
     standard = models.ForeignKey(LiveClass, on_delete=models.CASCADE)
     chapter_ids = models.ManyToManyField(ChapterNames)
@@ -56,8 +73,7 @@ class LiveClass_details(models.Model):
     mentor_id = models.ForeignKey(Mentor, max_length=30, on_delete=models.CASCADE)
     class_time = models.DateTimeField()
     end_time = models.DateTimeField(default=timezone.now())
-    isDoubtClass = models.BooleanField(default=False)
-    doubtsAddressed = models.IntegerField(default=0)
+    doubtClass = models.OneToOneField(DoubtClasses, on_delete=models.PROTECT, null=True, blank=True)
     isDraft = models.BooleanField(default=True)
     no_of_students_registered = models.IntegerField(default=0)
     no_of_students_attended = models.IntegerField(default=0)
@@ -71,24 +87,24 @@ class LiveClass_details(models.Model):
 #list of saved classes by the students
 
 class SavedClass(models.Model):
-    class_id = models.ForeignKey(LiveClass_details, on_delete=models.CASCADE)
+    class_details = models.ForeignKey(LiveClass_details, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     
     class Meta: 
         verbose_name_plural = 'SavedClasses'
-        unique_together = ['class_id', 'user']
+        unique_together = ['class_details', 'user']
     
     def __str__(self):
         return 'SavedClass : ' + str(self.class_details)
     
 #list of registered classes by the students
 class RegisteredClass(models.Model):
-    class_id = models.ForeignKey(LiveClass_details, on_delete=models.CASCADE)
+    class_details = models.ForeignKey(LiveClass_details, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
         
     class Meta:
         verbose_name_plural = 'RegisteredClass'
-        unique_together = ['class_id', 'user']
+        unique_together = ['class_details', 'user']
     
     def __str__(self):
         return 'Registered Class' + str(self.class_details)

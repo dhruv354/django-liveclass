@@ -166,19 +166,8 @@ def RegisterClass(request):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class DoubtClass(LoginRequiredMixin, mixins.ListModelMixin, generics.GenericAPIView):
 
-    serializer_class = serializers.LiveClass_details_serializer
-
-    def get_queryset(self):
-        return models.LiveClass_details.objects.filter(isDoubtClass = True)
-    
-    def get(self, request):
-        return self.list(request)
-
-
-
-
+# to list all the drafts of the classes
 class ListDrafts(LoginRequiredMixin, mixins.ListModelMixin, generics.GenericAPIView):
 
     serializer_class = serializers.LiveClass_details_serializer
@@ -190,7 +179,7 @@ class ListDrafts(LoginRequiredMixin, mixins.ListModelMixin, generics.GenericAPIV
         return Response(status=status.HTTP_401_UNAUTHORIZED)
         
 
-
+# to update , view and delete a particular draft
 class DraftClassId(LoginRequiredMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin,  mixins.UpdateModelMixin, generics.GenericAPIView):
 
     serializer_class = serializers.LiveClass_details_serializer
@@ -222,6 +211,51 @@ class DraftClassId(LoginRequiredMixin, mixins.ListModelMixin, mixins.RetrieveMod
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
+
+#view that will list and create all doubtclasses
+
+class DoubtClass(LoginRequiredMixin, mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
+
+    serializer_class = serializers.DoubtClass_serializer
+    queryset = models.DoubtClasses.objects.all()
+
+    def get(self, request):
+        return self.list(request)
+
+    def post(self, request):
+        if request.user.is_superuser:
+            return self.post(request)
+        else:
+            Response(status=status.HTTP_403_FORBIDDEN)
+
+
+class DoubtClassId(LoginRequiredMixin, mixins.ListModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
+    serializer_class = serializers.DoubtClass_serializer
+    queryset = models.DoubtClasses.objects.all()
+    lookup_field = 'id'
+
+    def get(self, request, id=None):
+        if id:
+            return self.list(request, id)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def put(self, request, id=None):
+        if id:
+            if request.user.is_superuser:
+                return self.update(request, id)
+            else:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def delete(self, request, id=None):
+        if id:
+            if request.user.is_superuser:
+                return self.destroy(request, id)
+            else:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 

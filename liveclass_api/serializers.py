@@ -3,6 +3,8 @@ from . import models
 
 
 
+#serializers for all the models containing which items to show 
+
 class LiveClass_serializer(serializers.ModelSerializer):
     class Meta:
         model = models.LiveClass
@@ -37,7 +39,10 @@ class Registered_serializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-
+class DoubtClass_serializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.DoubtClasses
+        fields = '__all__'
 
 
 

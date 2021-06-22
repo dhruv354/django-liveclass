@@ -1,6 +1,6 @@
 from liveclass_api.models import LiveClass
 from django.db import models
-from ..liveclass_api.models import LiveClass_details, LiveClass
+from liveclass_api.models import LiveClass_details, LiveClass
 # Create your models here.
 
 class Mentors(models.Model):
@@ -20,5 +20,7 @@ class QuestionModel(models.Model):
     question = models.TextField()
     doubt_class = models.ForeignKey(LiveClass_details, on_delete=models.CASCADE)
     mentor = models.ForeignKey(Mentors, on_delete=models.CASCADE)
+    answer = models.TextField()
+    status = models.BooleanField(default=False)
 
 
