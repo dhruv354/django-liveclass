@@ -57,6 +57,7 @@ class DoubtClasses(models.Model):
     doubtsAddressed = models.IntegerField(default=0)
     no_of_students_registered = models.IntegerField(default=0)
     no_of_students_attended = models.IntegerField(default=0)
+    mentor_id = models.ForeignKey(Mentor, on_delete=models.CASCADE, null=True)
 
     class Meta:
         verbose_name_plural = 'DoubtClasses'

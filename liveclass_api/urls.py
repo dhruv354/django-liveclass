@@ -14,7 +14,7 @@ urlpatterns = [
     path('registerclass/', views.RegisterClass, name='registerclass'),
     path('registerclass/<int:id>/', views.RegisterClassId),
     path('doubtclass/', views.DoubtClass.as_view(), name='doubtclass'),
-    path('doubtclass/<int:id>', views.DoubtClassId.as_view(), name='doubtclass'),
+    path('doubtclass/<int:id>', views.DoubtClassId.as_view()),
     path('drafts/', views.ListDrafts.as_view()),
     path('drafts/<int:id>', views.DraftClassId.as_view()),
 ]

@@ -171,7 +171,7 @@ def RegisterClass(request):
 class ListDrafts(LoginRequiredMixin, mixins.ListModelMixin, generics.GenericAPIView):
 
     serializer_class = serializers.LiveClass_details_serializer
-    queryset = models.LiveClass_details.objects.filter(isDraft=True)
+    queryset = models.LiveClass_details.objects.all()
 
     def get(self, request):
         if request.user.is_superuser:
@@ -224,9 +224,9 @@ class DoubtClass(LoginRequiredMixin, mixins.ListModelMixin, mixins.CreateModelMi
 
     def post(self, request):
         if request.user.is_superuser:
-            return self.post(request)
+            return self.create(request)
         else:
-            Response(status=status.HTTP_403_FORBIDDEN)
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
 
 class DoubtClassId(LoginRequiredMixin, mixins.ListModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
