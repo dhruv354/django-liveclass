@@ -11,6 +11,7 @@ from django.http import HttpResponse, JsonResponse
 from django.utils import timezone
 from datetime import datetime
 from rest_framework.permissions import BasePermission, IsAuthenticated, SAFE_METHODS
+from rest_framework.serializers import Serializer
 
 
 from . import serializers
@@ -277,14 +278,32 @@ class DoubtClassId(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Upda
 
     
 
-@login_required
-@api_view(['GET'])
+# @api_view(['GET'])
 
-def ChapterNames(request, id):
-    liveclass_id = models.LiveClass_details.objects.filter(id=id).first()
-    chapter_names = liveclass_id.chapter_ids.all()
-    serializer = serializers.chapterNames_serializer(chapter_names, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+# def ChapterNames(request, id):
+#     liveclass_id = models.LiveClass_details.objects.filter(id=id).first()
+#     chapter_names = liveclass_id.chapter_ids.all()
+#     serializer = serializers.chapterNames_serializer(chapter_names, many=True)
+#     return Response(serializer.data, status=status.HTTP_200_OK)
 
+class ChapterNames(mixins.ListModelMixin, generics.GenericAPIView):
+    serializer_class = serializers.chapterNames_serializer
+    # queryset = models.LiveClass_details.objects.filter(id=id).first().chapter_ids.all()
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'id'
+
+    def get_queryset(self):
+        #  print(liveclass_id)
+        
+        liveclass_id = models.LiveClass_details.objects.filter(id=self.kwargs['id']).first()
+        print(liveclass_id)
+        chapter_names = liveclass_id.chapter_ids.all()
+        return chapter_names
+
+    def get(self, request, id=None):
+        if id:
+            return self.list(request, id)
+        else:
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
 

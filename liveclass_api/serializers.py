@@ -22,8 +22,14 @@ class User_details_serializer(serializers.ModelSerializer):
         model = models.User_details
         fields = '__all__'
 
+class chapterNames_serializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.ChapterNames
+        fields = '__all__'
+
 
 class LiveClass_details_serializer(serializers.ModelSerializer):
+    chapter_names = chapterNames_serializer(read_only=True, many=True)
     class Meta:
         model = models.LiveClass_details
         fields = '__all__'
@@ -44,10 +50,7 @@ class DoubtClass_serializer(serializers.ModelSerializer):
         model = models.DoubtClasses
         fields = '__all__'
 
-class chapterNames_serializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.ChapterNames
-        fields = '__all__'
+
 
 
 

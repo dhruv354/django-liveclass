@@ -19,9 +19,10 @@ from rest_framework_jwt.views import obtain_jwt_token
 from . import views
 
 urlpatterns = [
-#    path('', views.register, name='register'),
+   
    path('login/', obtain_jwt_token),
    path('current_user/', views.current_user),
-   path('register/', views.UserList.as_view())
+   path('register/', views.UserList.as_view()),
+#    path('logout/', views.Logout.as_view())
 ]
 

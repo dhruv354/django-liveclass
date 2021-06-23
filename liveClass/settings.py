@@ -150,4 +150,4 @@ JWT_AUTH = {
     'JWT_RESPONSE_PAYLOAD_HANDLER': 'liveClass.utils.my_jwt_response_handler'
 }
 
-LOGIN_REDIRECT_URL = 'liveclass'
+LOGIN_URL = '/user/login'
