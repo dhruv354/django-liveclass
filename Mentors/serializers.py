@@ -10,8 +10,3 @@ class QuestionModel_serializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class Mentor_serializer(serializers.ModelSerializer):
-
-    class Meta():
-        model = models.Mentors
-        fields = '__all__'

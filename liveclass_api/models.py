@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User
 import datetime
 from django.utils import timezone
+
+
     # Create your models here.
     
 
@@ -33,6 +35,7 @@ class User_details(models.Model):
 #live class mentors details
 class Mentor(models.Model):
     name = models.CharField(max_length=30)
+    email = models.EmailField(null=True, blank=True)
     details = models.TextField()
     ratings = models.FloatField(default=0)
     class Meta:

@@ -68,4 +68,8 @@ class UserList(mixins.CreateModelMixin, GenericAPIView):
 '''To be constructed'''
 
 class Logout(APIView):
-    pass
+    def get(self, request, format=None):
+        # simply delete the token to force a login
+        print(request.user)
+        # request.user.auth_token.delete()
+        return Response(status=status.HTTP_200_OK)
