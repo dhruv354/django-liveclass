@@ -72,7 +72,7 @@ class LiveClass_details(models.Model):
     standard = models.ForeignKey(LiveClass, on_delete=models.CASCADE)
     chapter_ids = models.ManyToManyField(ChapterNames)
     chapter_details = models.TextField(default='')
-    mentor = models.ForeignKey(Mentor, max_length=30, on_delete=models.CASCADE)
+    mentor_id = models.ForeignKey(Mentor, max_length=30, on_delete=models.CASCADE)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField(default=timezone.now())
     doubtClass = models.OneToOneField(DoubtClasses, on_delete=models.PROTECT, null=True, blank=True)

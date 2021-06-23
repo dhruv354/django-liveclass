@@ -50,7 +50,7 @@ class LiveClassViewId(mixins.RetrieveModelMixin,
                     mixins.UpdateModelMixin,
                     mixins.DestroyModelMixin,
                     generics.GenericAPIView):
-    queryset = models.LiveClass_details.objects.all()
+    queryset = models.LiveClass_details.objects.filter(isDraft=False)
     serializer_class = serializers.LiveClass_details_serializer
     permission_classes = [IsAuthenticated]
     lookup_field = 'id'
@@ -185,7 +185,7 @@ def RegisterClass(request):
 class ListDrafts(LoginRequiredMixin, mixins.ListModelMixin, generics.GenericAPIView):
 
     serializer_class = serializers.LiveClass_details_serializer
-    queryset = models.LiveClass_details.objects.all()
+    queryset = models.LiveClass_details.objects.filter(isDraft=True)
 
     def get(self, request):
         if request.user.is_superuser:
@@ -277,7 +277,50 @@ class DoubtClassId(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Upda
 
     
 
-# @login_required
-# @api_view(['GET'])
+@login_required
+@api_view(['GET'])
 
-# def ChapterNames(request, id):
+def ChapterNames(request, id):
+    liveclass_id = models.LiveClass_details.objects.filter(id=id).first()
+    chapter_names = liveclass_id.chapter_ids.all()
+    serializer = serializers.chapterNames_serializer(chapter_names, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+
+
+@api_view(['GET', 'DELETE'])
+@login_required
+def RegisterDoubtClassId(request, id):
+    if request.method == 'GET':
+        try:
+            registered_class = models.RegisteredClass.objects.create(class_details=models.LiveClass_details.objects.get(id=id), user=request.user)
+            registered_class.save()
+            registered_live_class = models.LiveClass_details.objects.get(id=id)
+            registered_live_class.no_of_students_registered += 1
+            registered_live_class.save()
+        except Exception as e:
+            return Response("Already registered")
+       
+        return Response(status=status.HTTP_201_CREATED)
+
+    elif request.method == 'DELETE':
+
+        registered_class = models.RegisteredClass.objects.get(class_details=models.LiveClass_details.objects.get(id=id), user=request.user)
+        registered_class.delete()
+        registered_live_class = models.LiveClass_details.objects.get(id=id)
+        registered_live_class.no_of_students_registered -= 1
+        registered_live_class.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+
+
+# to get all the registered classes for a particular user
+@login_required
+@api_view(['GET'])
+def RegisterClass(request):
+    registered_classes = models.RegisteredClass.objects.filter(user=request.user)
+    serializer = serializers.Registered_serializer(registered_classes, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
