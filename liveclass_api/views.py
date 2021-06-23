@@ -288,39 +288,3 @@ def ChapterNames(request, id):
 
 
 
-
-
-@api_view(['GET', 'DELETE'])
-@login_required
-def RegisterDoubtClassId(request, id):
-    if request.method == 'GET':
-        try:
-            registered_class = models.RegisteredClass.objects.create(class_details=models.LiveClass_details.objects.get(id=id), user=request.user)
-            registered_class.save()
-            registered_live_class = models.LiveClass_details.objects.get(id=id)
-            registered_live_class.no_of_students_registered += 1
-            registered_live_class.save()
-        except Exception as e:
-            return Response("Already registered")
-       
-        return Response(status=status.HTTP_201_CREATED)
-
-    elif request.method == 'DELETE':
-
-        registered_class = models.RegisteredClass.objects.get(class_details=models.LiveClass_details.objects.get(id=id), user=request.user)
-        registered_class.delete()
-        registered_live_class = models.LiveClass_details.objects.get(id=id)
-        registered_live_class.no_of_students_registered -= 1
-        registered_live_class.save()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-    
-
-
-# to get all the registered classes for a particular user
-@login_required
-@api_view(['GET'])
-def RegisterClass(request):
-    registered_classes = models.RegisteredClass.objects.filter(user=request.user)
-    serializer = serializers.Registered_serializer(registered_classes, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
-
