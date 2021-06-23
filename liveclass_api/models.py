@@ -52,7 +52,7 @@ class ChapterNames(models.Model):
 #model for doubt classes
 class DoubtClasses(models.Model):
     doubtClass_details = models.TextField()
-    class_time = models.DateTimeField()
+    start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     doubtsAddressed = models.IntegerField(default=0)
     ratings = models.IntegerField(default=0)
