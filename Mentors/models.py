@@ -25,9 +25,16 @@ class QuestionModel(models.Model):
     def clean(self):
         if self.doubt_class_id and self.conceptual_class_id :
             raise ValidationError("only one field can be set")
+    
 
 class AnswersModel(models.Model):
     answer = models.TextField()
     question_id = models.ForeignKey(QuestionModel, on_delete=models.CASCADE)
+
+
+    class Meta:
+        pass
+
+
 
 
