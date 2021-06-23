@@ -31,6 +31,7 @@ class QuestionModelViewID(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixi
             return Response(status=status.HTTP_204_NO_CONTENT)
 
     def put(self, request, id=None):
+
         if id:
                 return self.update(request, id)
         else:
@@ -43,4 +44,6 @@ class QuestionModelViewID(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixi
         else:
             return Response(status=status.HTTP_204_NO_CONTENT)
     
-        
+        from django.shortcuts import render
+
+# Create your views here.

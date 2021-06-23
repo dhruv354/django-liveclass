@@ -1,3 +1,6 @@
+from django.db import models
+
+# Create your models here.
 from django.core.exceptions import ValidationError
 from liveclass_api.models import LiveClass
 from django.db import models
@@ -14,7 +17,7 @@ class AnswersModel(models.Model):
 
 class QuestionModel(models.Model):
     question = models.TextField()
-    author = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
     doubt_class_id = models.ForeignKey(DoubtClasses, on_delete=models.CASCADE)
     conceptual_class_id = models.ForeignKey(LiveClass_details, on_delete=models.CASCADE)
     status = models.BooleanField(default=False)

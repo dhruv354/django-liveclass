@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'liveclass_api',
     'authentication',
-    'Mentors',
+    'MentorApp',
     'corsheaders',
 ]
 

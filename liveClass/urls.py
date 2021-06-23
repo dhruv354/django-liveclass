@@ -22,7 +22,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('liveclass_api.urls')),
     path('user/', include('authentication.urls')),
-    path('Mentors_app/', include('Mentors.urls') )
+    path('Mentors_app/', include('MentorApp.urls') )
 
 ]
 
