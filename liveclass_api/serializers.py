@@ -1,4 +1,4 @@
-from rest_framework import serializers
+from rest_framework import fields, serializers
 from . import models
 
 
@@ -44,6 +44,10 @@ class DoubtClass_serializer(serializers.ModelSerializer):
         model = models.DoubtClasses
         fields = '__all__'
 
+class chapterNames_serializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.ChapterNames
+        fields = '__all__'
 
 
 

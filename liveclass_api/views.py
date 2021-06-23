@@ -275,6 +275,9 @@ class DoubtClassId(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Upda
 
 
 
-
     
 
+# @login_required
+# @api_view(['GET'])
+
+# def ChapterNames(request, id)

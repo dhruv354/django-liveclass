@@ -82,7 +82,7 @@ class LiveClass_details(models.Model):
         verbose_name_plural = 'LiveClass_details'
         
     def __str__(self):
-        return " doubtClass: " + str(self.isDoubtClass)
+        return self.chapter_details
     
     
 #list of saved classes by the students
