@@ -15,9 +15,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from rest_framework_jwt.views import obtain_jwt_token
 from . import views
 
 urlpatterns = [
-   path('', views.register, name='register')
+#    path('', views.register, name='register'),
+   path('login/', obtain_jwt_token),
+   path('current_user/', views.current_user),
+   path('register/', views.UserList.as_view())
 ]
 

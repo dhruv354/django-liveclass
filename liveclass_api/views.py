@@ -10,12 +10,21 @@ from rest_framework.decorators import api_view
 from django.http import HttpResponse, JsonResponse
 from django.utils import timezone
 from datetime import datetime
-
+from rest_framework.permissions import BasePermission, IsAuthenticated, SAFE_METHODS
 
 
 from . import serializers
 from . import models
 # Create your views here.
+
+
+class IsSuperuserOrReadOnly(BasePermission):
+    def has_permission(self, request, view):
+        return bool(
+            request.method in SAFE_METHODS or
+            request.user and
+            request.user.is_superuser
+        )
 
 
 # This view enables the user to see and create a liveclass but creation can only be done by the superuser
@@ -24,6 +33,7 @@ class LiveClassView(mixins.ListModelMixin,
                     generics.GenericAPIView):
     queryset = models.LiveClass_details.objects.filter(isDraft = False)
     serializer_class = serializers.LiveClass_details_serializer
+    permission_classes = [IsAuthenticated]
     
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
@@ -42,6 +52,7 @@ class LiveClassViewId(mixins.RetrieveModelMixin,
                     generics.GenericAPIView):
     queryset = models.LiveClass_details.objects.all()
     serializer_class = serializers.LiveClass_details_serializer
+    permission_classes = [IsAuthenticated]
     lookup_field = 'id'
 
     def get(self, request, id=None, format=None):
@@ -68,6 +79,7 @@ class LiveClassViewId(mixins.RetrieveModelMixin,
 class ListMentors(mixins.ListModelMixin,  generics.GenericAPIView):
     queryset = models.Mentor.objects.all()
     serializer_class = serializers.Mentor_serializer
+    permission_classes = [IsAuthenticated]
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
@@ -76,6 +88,7 @@ class ListMentors(mixins.ListModelMixin,  generics.GenericAPIView):
 class ListUserDetails(mixins.ListModelMixin, generics.GenericAPIView):
     queryset = models.User_details.objects.all()
     serializer_class = serializers.User_details_serializer
+    permission_classes = [IsAuthenticated]
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
@@ -86,6 +99,7 @@ class SavedClassView(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.Dest
 
     serializer_class = serializers.SavedClass_serializer
     lookup_field = 'id'
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
@@ -111,6 +125,7 @@ class SavedClassDeleteView(mixins.ListModelMixin, mixins.RetrieveModelMixin,mixi
 
     serializer_class = serializers.SavedClass_serializer
     lookup_field = 'id'
+    permission_classes = [IsAuthenticated]
     def get_queryset(self):
         user = self.request.user
         return models.SavedClass.objects.filter(user=self.request.user.id)
@@ -131,6 +146,7 @@ class SavedClassDeleteView(mixins.ListModelMixin, mixins.RetrieveModelMixin,mixi
 # to register and deregister a paricular live class 
 
 @api_view(['GET', 'DELETE'])
+@login_required
 def RegisterClassId(request, id):
     if request.method == 'GET':
         try:
@@ -156,7 +172,7 @@ def RegisterClassId(request, id):
 
 
 # to get all the registered classes for a particular user
-
+@login_required
 @api_view(['GET'])
 def RegisterClass(request):
     registered_classes = models.RegisteredClass.objects.filter(user=request.user)
@@ -182,6 +198,7 @@ class DraftClassId(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Dest
 
     serializer_class = serializers.LiveClass_details_serializer
     queryset = models.LiveClass_details.objects.filter(isDraft=True)
+    permission_classes = [IsAuthenticated]
     lookup_field = 'id'
 
     def get(self, request, id=None):
@@ -216,7 +233,7 @@ class DoubtClass( mixins.ListModelMixin, mixins.CreateModelMixin, generics.Gener
 
     serializer_class = serializers.DoubtClass_serializer
     queryset = models.DoubtClasses.objects.all()
-
+    permission_classes = [IsAuthenticated]
     def get(self, request):
         return self.list(request)
 
@@ -230,6 +247,7 @@ class DoubtClass( mixins.ListModelMixin, mixins.CreateModelMixin, generics.Gener
 class DoubtClassId(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
     serializer_class = serializers.DoubtClass_serializer
     queryset = models.DoubtClasses.objects.all()
+    permission_classes = [IsAuthenticated]
     lookup_field = 'id'
 
     def get(self, request, id=None, format=None):
