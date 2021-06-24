@@ -19,8 +19,9 @@ class QuestionModel(models.Model):
     question = models.TextField()
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     doubt_class_id = models.ForeignKey(DoubtClasses, on_delete=models.CASCADE)
-    conceptual_class_id = models.ForeignKey(LiveClass_details, on_delete=models.CASCADE)
+    conceptual_class_id = models.ForeignKey(LiveClass_details, on_delete=models.CASCADE, null=True, blank=True)
     status = models.BooleanField(default=False)
+    mentor = models.ForeignKey(Mentor, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return self.question

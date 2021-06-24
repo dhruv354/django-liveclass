@@ -10,3 +10,9 @@ class QuestionModel_serializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class AnswerModel_serializer(serializers.ModelSerializer):
+
+    class Meta():
+        model = models.AnswersModel
+        fields = '__all__'
+
