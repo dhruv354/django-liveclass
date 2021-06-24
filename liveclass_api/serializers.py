@@ -34,6 +34,8 @@ class LiveClass_details_serializer(serializers.ModelSerializer):
         model = models.LiveClass_details
         fields = '__all__'
 
+
+
 class Mentor_serializer(serializers.ModelSerializer):
     class Meta:
         model = models.Mentor
@@ -41,7 +43,7 @@ class Mentor_serializer(serializers.ModelSerializer):
 
 class Registered_serializer(serializers.ModelSerializer):
     class Meta:
-        model = models.RegisteredClass
+        model = models.RegisteredClassNew
         fields = '__all__'
 
 
@@ -49,6 +51,7 @@ class DoubtClass_serializer(serializers.ModelSerializer):
     class Meta:
         model = models.DoubtClasses
         fields = '__all__'
+
 
 
 

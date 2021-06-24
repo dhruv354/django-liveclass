@@ -5,8 +5,8 @@ from rest_framework.permissions import BasePermission, IsAuthenticated, SAFE_MET
 from rest_framework.generics import GenericAPIView
 from rest_framework import mixins
 from rest_framework import status
-from django.db.models import Q
-import operator
+
+
 # Create your views here.
 
 class QuestionModelView(mixins.ListModelMixin, mixins.CreateModelMixin,GenericAPIView):
@@ -52,17 +52,6 @@ class QuestionModelViewID(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixi
         
 
 
-     
-class MultipleFieldLookupMixin(object):
-    def get_object(self):
-        queryset = self.get_queryset()             # Get the base queryset
-        queryset = self.filter_queryset(queryset)  # Apply any filter backends
-        filter = {}
-        for field in self.lookup_fields:
-            filter[field] = self.kwargs[field]
-        q = reduce(operator.or_, (Q(x) for x in filter.items()))
-        return get_object_or_404(queryset, q)
-
 
 class AnswerModel(mixins.ListModelMixin, mixins.CreateModelMixin, GenericAPIView):
 
@@ -83,3 +72,6 @@ class AnswerModel(mixins.ListModelMixin, mixins.CreateModelMixin, GenericAPIView
             return Response("only superuser can post a answer", status=status.HTTP_400_BAD_REQUEST)
     
     # def put(self, request, id=None)
+
+class AnswerModelId():
+    pass

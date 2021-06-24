@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 import datetime
 from django.utils import timezone
+from django.core.exceptions import ValidationError
 
 
     # Create your models here.
@@ -77,7 +78,7 @@ class LiveClass_details(models.Model):
     chapter_details = models.TextField(default='')
     mentor_id = models.ForeignKey(Mentor, max_length=30, on_delete=models.CASCADE)
     start_time = models.DateTimeField()
-    end_time = models.DateTimeField(default=timezone.now())
+    end_time = models.DateTimeField()
     doubtClass = models.OneToOneField(DoubtClasses, on_delete=models.PROTECT, null=True, blank=True)
     isDraft = models.BooleanField(default=True)
     ratings = models.IntegerField(default=0)
@@ -116,7 +117,43 @@ class RegisteredClass(models.Model):
         return 'Registered Class' + str(self.class_details)
     
 
+class RegisteredClassNew(models.Model):
+    conceptual_class = models.ForeignKey(LiveClass_details, on_delete=models.CASCADE, null=True, blank=True)
+    doubtclass = models.ForeignKey(DoubtClasses, on_delete=models.CASCADE, null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+        
+    class Meta:
+        verbose_name_plural = 'RegisteredClassNew'
+        unique_together = ['conceptual_class_id', 'user']
+        # unique_together = ['doubtclass_id', 'user']
 
+
+    def clean(self):
+
+
+        if self.conceptual_class_id and self.doubtclass_id :
+            raise ValidationError("only one type of class can be selected")
+            
+        elif  not self.conceptual_class_id and not self.doubtclass_id:
+            raise ValidationError("both type of class cannot be empty")
+
+        # try:
+        #     RegisteredClassNew.objects.get(user=self.cleaned_data['user'], 
+        #                         doubtclass_id=self.cleaned_data['doubtclass_id'],
+        #                         conceptual_class_id=self.cleaned_data['conceptual_class_id']
+        #                        )
+        #     #if we get this far, we have an exact match for this form's data
+        #     raise ValidationError("Exists already!")
+        # except RegisteredClassNew.DoesNotExist:
+        #     #because we didn't get a match
+        #     pass
+
+        # return self.cleaned_data
+
+
+
+
+        
 
 
 

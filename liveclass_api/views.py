@@ -245,6 +245,7 @@ class DoubtClass( mixins.ListModelMixin, mixins.CreateModelMixin, generics.Gener
             return Response(status=status.HTTP_403_FORBIDDEN)
 
 
+#view for a particular doubt class object
 class DoubtClassId(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
     serializer_class = serializers.DoubtClass_serializer
     queryset = models.DoubtClasses.objects.all()
@@ -278,14 +279,7 @@ class DoubtClassId(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Upda
 
     
 
-# @api_view(['GET'])
-
-# def ChapterNames(request, id):
-#     liveclass_id = models.LiveClass_details.objects.filter(id=id).first()
-#     chapter_names = liveclass_id.chapter_ids.all()
-#     serializer = serializers.chapterNames_serializer(chapter_names, many=True)
-#     return Response(serializer.data, status=status.HTTP_200_OK)
-
+#view to list all the chapternames 
 class ChapterNames(mixins.ListModelMixin, generics.GenericAPIView):
     serializer_class = serializers.chapterNames_serializer
     # queryset = models.LiveClass_details.objects.filter(id=id).first().chapter_ids.all()
@@ -307,3 +301,63 @@ class ChapterNames(mixins.ListModelMixin, generics.GenericAPIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+@login_required
+@api_view(['GET'])
+
+def RegisterClass2(request):
+   
+    registered_classes = models.RegisteredClassNew.objects.filter(user=request.user)
+    serializer = serializers.Registered_serializer(registered_classes, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# to register and deregister a paricular live class 
+
+@api_view(['GET', 'DELETE'])
+@login_required
+def RegisterClassId2(request, type_of_class, id):
+    if type_of_class == 'liveclass':
+        if request.method == 'GET':
+            try:
+                registered_class = models.RegisteredClassNew.objects.create(conceptual_class_id=models.LiveClass_details.objects.get(id=id), user=request.user)
+                registered_class.save()
+                registered_live_class = models.LiveClass_details.objects.get(id=id)
+                registered_live_class.no_of_students_registered += 1
+                registered_live_class.save()
+            except Exception as e:
+                return Response("Already registered")
+        
+            return Response(status=status.HTTP_201_CREATED)
+
+        elif request.method == 'DELETE':
+
+            registered_class = models.RegisteredClassNew.objects.get(conceptual_class_id=models.LiveClass_details.objects.get(id=id), user=request.user)
+            registered_class.delete()
+            registered_live_class = models.LiveClass_details.objects.get(id=id)
+            registered_live_class.no_of_students_registered -= 1
+            registered_live_class.save()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+    elif type_of_class == 'doubtclass':
+        if request.method == 'GET':
+            try:
+                registered_class = models.RegisteredClassNew.objects.create(doubtclass_id=models.DoubtClasses.objects.get(id=id), user=request.user)
+                registered_class.save()
+                registered_doubt_class = models.DoubtClasses.objects.get(id=id)
+                registered_doubt_class.no_of_students_registered += 1
+                registered_doubt_class.save()
+            except Exception as e:
+                return Response("Already registered")
+        
+            return Response(status=status.HTTP_201_CREATED)
+
+        elif request.method == 'DELETE':
+
+            registered_class = models.RegisteredClassNew.objects.get(doubtclass_id=models.DoubtClasses.objects.get(id=id), user=request.user)
+            registered_class.delete()
+            registered_doubt_class = models.DoubtClasses.objects.get(id=id)
+            registered_doubt_class.no_of_students_registered -= 1
+            registered_doubt_class.save()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+    
