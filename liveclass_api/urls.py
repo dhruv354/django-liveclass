@@ -18,6 +18,8 @@ urlpatterns = [
     path('doubtclass/<int:id>', views.DoubtClassId.as_view()),
     path('drafts/', views.ListDrafts.as_view()),
     path('drafts/<int:id>', views.DraftClassId.as_view()),
+    path('registerdoubtclass/', views.RegisterDoubtClass),
+    path('registerdoubtclass/<int:id>/', views.RegisterDoubtClassId),
     # path('registerclass/<str:type_of_class>/<int:id>', views.RegisterClassId2),
     # path('registerclassnew/', views.RegisterClass2),
    

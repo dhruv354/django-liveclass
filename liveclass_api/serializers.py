@@ -1,4 +1,5 @@
 from rest_framework import fields, serializers
+from rest_framework.views import set_rollback
 from . import models
 
 
@@ -50,6 +51,11 @@ class Registered_serializer(serializers.ModelSerializer):
 class DoubtClass_serializer(serializers.ModelSerializer):
     class Meta:
         model = models.DoubtClasses
+        fields = '__all__'
+
+class RegisterDoubtclass_serializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.RegisterDoubtClass
         fields = '__all__'
 
 

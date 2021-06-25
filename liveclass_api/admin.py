@@ -1,4 +1,4 @@
 from django.contrib import admin
-from .models import LiveClass, User_details, Mentor, LiveClass_details, SavedClass, RegisteredClass, ChapterNames, DoubtClasses
+from .models import LiveClass, User_details, Mentor, LiveClass_details, SavedClass, RegisteredClass, ChapterNames, DoubtClasses, RegisterDoubtClass
 # Register your models here.
-admin.site.register([LiveClass, User_details, Mentor, LiveClass_details,SavedClass, RegisteredClass, ChapterNames, DoubtClasses])
+admin.site.register([LiveClass, User_details, Mentor, LiveClass_details,SavedClass, RegisteredClass, ChapterNames, DoubtClasses, RegisterDoubtClass])

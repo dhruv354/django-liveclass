@@ -117,25 +117,16 @@ class RegisteredClass(models.Model):
         return 'Registered Class' + str(self.class_details)
     
 
-class RegisteredClassNew2(models.Model):
-    conceptual_class = models.ForeignKey(LiveClass_details, on_delete=models.CASCADE, null=True, blank=True)
-    doubtclass = models.ForeignKey(DoubtClasses, on_delete=models.CASCADE, null=True, blank=True)
+class RegisterDoubtClass(models.Model):
+    doubtclass = models.ForeignKey(DoubtClasses, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
         
     class Meta:
-        verbose_name_plural = 'RegisteredClass2'
-        unique_together = ['conceptual_class', 'user']
+        verbose_name_plural = 'RegisteDoubtClass'
         unique_together = ['doubtclass', 'user']
 
 
-    def clean(self):
-
-
-        if self.conceptual_class and self.doubtclass :
-            raise ValidationError("only one type of class can be selected")
-            
-        elif  not self.conceptual_class and not self.doubtclass:
-            raise ValidationError("both type of class cannot be empty")
+   
 
 #         # try:
 #         #     RegisteredClassNew.objects.get(user=self.cleaned_data['user'], 

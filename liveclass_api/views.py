@@ -179,6 +179,7 @@ def RegisterClassId(request, id):
             registered_class.save()
             registered_live_class = models.LiveClass_details.objects.get(id=id)
             registered_live_class.no_of_students_registered += 1
+            registered_live_class.no_of_students_attended += 1
             registered_live_class.save()
         except Exception as e:
             return Response("Already registered")
@@ -191,6 +192,7 @@ def RegisterClassId(request, id):
         registered_class.delete()
         registered_live_class = models.LiveClass_details.objects.get(id=id)
         registered_live_class.no_of_students_registered -= 1
+        registered_live_class.no_of_students_attended -= 1
         registered_live_class.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
@@ -327,13 +329,44 @@ class ChapterNames(mixins.ListModelMixin, generics.GenericAPIView):
 
 
 
-# @api_view(['GET'])
-# @permission_classes((IsAuthenticated, ))
-# def RegisterClass2(request):
+@api_view(['GET'])
+@permission_classes((IsAuthenticated, ))
+def RegisterDoubtClass(request):
    
-#     registered_classes = models.RegisteredClassNew.objects.filter(user=request.user)
-#     serializer = serializers.Registered_serializer(registered_classes, many=True)
-#     return Response(serializer.data, status=status.HTTP_200_OK)
+    registered_classes = models.RegisterDoubtClass.objects.filter(user=request.user)
+    serializer = serializers.RegisterDoubtclass_serializer(registered_classes, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET', 'DELETE'])
+@permission_classes((IsAuthenticated, ))
+def RegisterDoubtClassId(request, id):
+   
+    if request.method == 'GET':
+        try:
+            registered_class = models.RegisterDoubtClass.objects.create(doubtclass=models.DoubtClasses.objects.get(id=id), user=request.user)
+            registered_class.save()
+            registered_doubt_class = models.DoubtClasses.objects.get(id=id)
+            registered_doubt_class.no_of_students_registered += 1
+            registered_doubt_class.no_of_students_attended += 1
+            registered_doubt_class.save()
+        except Exception as e:
+            return Response("Already registered")
+       
+        return Response(status=status.HTTP_201_CREATED)
+
+    elif request.method == 'DELETE':
+
+        registered_class = models.RegisterDoubtClass.objects.get(doubtclass=models.DoubtClasses.objects.get(id=id), user=request.user)
+        registered_class.delete()
+        registered_doubt_class = models.DoubtClasses.objects.get(id=id)
+        registered_doubt_class.no_of_students_registered -= 1
+        registered_doubt_class.no_of_students_attended -= 1
+        registered_doubt_class.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+
+
 
 
 # # to register and deregister a paricular live class 
