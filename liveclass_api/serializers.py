@@ -41,10 +41,10 @@ class Mentor_serializer(serializers.ModelSerializer):
         model = models.Mentor
         fields = '__all__'
 
-class Registered_serializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.RegisteredClassNew
-        fields = '__all__'
+# class Registered_serializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = models.RegisteredClassNew
+#         fields = '__all__'
 
 
 class DoubtClass_serializer(serializers.ModelSerializer):

@@ -1,18 +1,18 @@
-from rest_framework import fields, serializers
-from . import models
+# from rest_framework import fields, serializers
+# from . import models
 
 
 
-class QuestionModel_serializer(serializers.ModelSerializer):
+# class QuestionModel_serializer(serializers.ModelSerializer):
 
-    class Meta():
-        model = models.QuestionModel
-        fields = '__all__'
+#     class Meta():
+#         model = models.QuestionModel
+#         fields = '__all__'
 
 
-class AnswerModel_serializer(serializers.ModelSerializer):
+# class AnswerModel_serializer(serializers.ModelSerializer):
 
-    class Meta():
-        model = models.AnswersModel
-        fields = '__all__'
+#     class Meta():
+#         model = models.AnswersModel
+#         fields = '__all__'
 

@@ -114,35 +114,59 @@ class SavedClassView(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.Dest
         return self.list(request)
 
 
-    def post(self, request):
-        cur_user = self.request.user
-        if int(request.POST.get('user')) != self.request.user.id:
-                return Response(status=status.HTTP_403_FORBIDDEN)
-        return self.create(request)
+    # def post(self, request):
+    #     cur_user = self.request.user
+    #     if int(request.POST.get('user')) != self.request.user.id:
+    #             return Response(status=status.HTTP_403_FORBIDDEN)
+    #     return self.create(request)
     
 
 #To delete a particular saved class
-class SavedClassDeleteView(mixins.ListModelMixin, mixins.RetrieveModelMixin,mixins.DestroyModelMixin, generics.GenericAPIView) :
 
-    serializer_class = serializers.SavedClass_serializer
-    lookup_field = 'id'
-    permission_classes = [IsAuthenticated]
-    def get_queryset(self):
-        user = self.request.user
-        return models.SavedClass.objects.filter(user=self.request.user.id)
+# class SavedClassDeleteView(mixins.ListModelMixin, mixins.RetrieveModelMixin,mixins.DestroyModelMixin, generics.GenericAPIView) :
 
-    def get(self, request, id=None):
-        if id:
-            return self.retrieve(request, id)
-        return Response("no content", status=status.HTTP_204_NO_CONTENT)
+#     serializer_class = serializers.SavedClass_serializer
+#     lookup_field = 'id'
+#     permission_classes = [IsAuthenticated]
+#     def get_queryset(self):
+#         user = self.request.user
+#         return models.SavedClass.objects.filter(user=self.request.user.id)
+
+#     def get(self, request, id=None):
+#         if id:
+#             return self.retrieve(request, id)
+#         return Response("no content", status=status.HTTP_204_NO_CONTENT)
     
-    def delete(self, request, id=None):
-        try:
-             self.destroy(request, id)
-             return redirect('saved')
-        except Exception as e:
-            return Response(Exception, status=status.HTTP_400_BAD_REQUEST)
+#     def delete(self, request, id=None):
+#         try:
+#              self.destroy(request, id)
+#              return redirect('saved')
+#         except Exception as e:
+#             return Response(Exception, status=status.HTTP_400_BAD_REQUEST)
    
+
+
+@api_view(['GET', 'DELETE'])
+@permission_classes((IsAuthenticated, ))
+def SavedClassId(request, id):
+    if request.method == 'GET':
+        if not models.LiveClass_details.objects.filter(id=id).exists():
+            return Response("id with this liveclass does not exist", status=status.HTTP_400_BAD_REQUEST)
+        try:
+            saved_class = models.SavedClass.objects.create(class_details=models.LiveClass_details.objects.get(id=id), user=request.user)
+            saved_class.save()
+        except Exception as e:
+            return Response("Already Saved")
+       
+        return Response(status=status.HTTP_201_CREATED)
+
+    elif request.method == 'DELETE':
+
+        saved_class = models.SavedClass.objects.get(class_details=models.LiveClass_details.objects.get(id=id), user=request.user)
+        saved_class.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+
     
 # to register and deregister a paricular live class 
 
@@ -302,64 +326,64 @@ class ChapterNames(mixins.ListModelMixin, generics.GenericAPIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-@login_required
-@api_view(['GET'])
 
-def RegisterClass2(request):
+# @api_view(['GET'])
+# @permission_classes((IsAuthenticated, ))
+# def RegisterClass2(request):
    
-    registered_classes = models.RegisteredClassNew.objects.filter(user=request.user)
-    serializer = serializers.Registered_serializer(registered_classes, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+#     registered_classes = models.RegisteredClassNew.objects.filter(user=request.user)
+#     serializer = serializers.Registered_serializer(registered_classes, many=True)
+#     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-# to register and deregister a paricular live class 
+# # to register and deregister a paricular live class 
 
-@api_view(['GET', 'DELETE'])
-@login_required
-def RegisterClassId2(request, type_of_class, id):
-    if type_of_class == 'liveclass':
-        if request.method == 'GET':
-            try:
+# @api_view(['GET', 'DELETE'])
+# @permission_classes((IsAuthenticated, ))
+# def RegisterClassId2(request, type_of_class, id):
+#     if type_of_class == 'liveclass':
+#         if request.method == 'GET':
+#             try:
                 
-                registered_class = models.RegisteredClassNew.objects.create(conceptual_class_id=models.LiveClass_details.objects.get(id=id), user=request.user)
-                registered_class.save()
-                registered_live_class = models.LiveClass_details.objects.get(id=id)
-                registered_live_class.no_of_students_registered += 1
-                registered_live_class.save()
-            except Exception as e:
-                return Response("Already registered")
+#                 registered_class = models.RegisteredClassNew.objects.create(conceptual_class_id=models.LiveClass_details.objects.get(id=id), user=request.user)
+#                 registered_class.save()
+#                 registered_live_class = models.LiveClass_details.objects.get(id=id)
+#                 registered_live_class.no_of_students_registered += 1
+#                 registered_live_class.save()
+#             except Exception as e:
+#                 return Response("Already registered")
         
-            return Response(status=status.HTTP_201_CREATED)
+#             return Response(status=status.HTTP_201_CREATED)
 
-        elif request.method == 'DELETE':
+#         elif request.method == 'DELETE':
 
-            registered_class = models.RegisteredClassNew.objects.get(conceptual_class_id=models.LiveClass_details.objects.get(id=id), user=request.user)
-            registered_class.delete()
-            registered_live_class = models.LiveClass_details.objects.get(id=id)
-            registered_live_class.no_of_students_registered -= 1
-            registered_live_class.save()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+#             registered_class = models.RegisteredClassNew.objects.get(conceptual_class_id=models.LiveClass_details.objects.get(id=id), user=request.user)
+#             registered_class.delete()
+#             registered_live_class = models.LiveClass_details.objects.get(id=id)
+#             registered_live_class.no_of_students_registered -= 1
+#             registered_live_class.save()
+#             return Response(status=status.HTTP_204_NO_CONTENT)
 
-    elif type_of_class == 'doubtclass':
-        if request.method == 'GET':
-            try:
-                registered_class = models.RegisteredClassNew.objects.create(doubtclass_id=models.DoubtClasses.objects.get(id=id), user=request.user)
-                registered_class.save()
-                registered_doubt_class = models.DoubtClasses.objects.get(id=id)
-                registered_doubt_class.no_of_students_registered += 1
-                registered_doubt_class.save()
-            except Exception as e:
-                return Response("Already registered")
+#     elif type_of_class == 'doubtclass':
+#         if request.method == 'GET':
+#             try:
+#                 registered_class = models.RegisteredClassNew.objects.create(doubtclass_id=models.DoubtClasses.objects.get(id=id), user=request.user)
+#                 registered_class.save()
+#                 registered_doubt_class = models.DoubtClasses.objects.get(id=id)
+#                 registered_doubt_class.no_of_students_registered += 1
+#                 registered_doubt_class.save()
+#             except Exception as e:
+#                 return Response("Already registered")
         
-            return Response(status=status.HTTP_201_CREATED)
+#             return Response(status=status.HTTP_201_CREATED)
 
-        elif request.method == 'DELETE':
+#         elif request.method == 'DELETE':
 
-            registered_class = models.RegisteredClassNew.objects.get(doubtclass_id=models.DoubtClasses.objects.get(id=id), user=request.user)
-            registered_class.delete()
-            registered_doubt_class  = models.DoubtClasses.objects.get(id=id)
-            registered_doubt_class.no_of_students_registered -= 1
-            registered_doubt_class.save()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+#             registered_class = models.RegisteredClassNew.objects.get(doubtclass_id=models.DoubtClasses.objects.get(id=id), user=request.user)
+#             registered_class.delete()
+#             registered_doubt_class  = models.DoubtClasses.objects.get(id=id)
+#             registered_doubt_class.no_of_students_registered -= 1
+#             registered_doubt_class.save()
+#             return Response(status=status.HTTP_204_NO_CONTENT)
 
     
