@@ -6,7 +6,7 @@ from rest_framework import status
 from django.contrib.auth.models import User
 from rest_framework.response import Response
 from django.contrib.auth.decorators import login_required
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from django.http import HttpResponse, JsonResponse
 from django.utils import timezone
 from datetime import datetime
@@ -147,7 +147,7 @@ class SavedClassDeleteView(mixins.ListModelMixin, mixins.RetrieveModelMixin,mixi
 # to register and deregister a paricular live class 
 
 @api_view(['GET', 'DELETE'])
-@login_required
+@permission_classes((IsAuthenticated, ))
 def RegisterClassId(request, id):
     if request.method == 'GET':
         try:
@@ -173,8 +173,9 @@ def RegisterClassId(request, id):
 
 
 # to get all the registered classes for a particular user
-@login_required
+
 @api_view(['GET'])
+@permission_classes((IsAuthenticated, ))
 def RegisterClass(request):
     registered_classes = models.RegisteredClass.objects.filter(user=request.user)
     serializer = serializers.Registered_serializer(registered_classes, many=True)
@@ -319,6 +320,7 @@ def RegisterClassId2(request, type_of_class, id):
     if type_of_class == 'liveclass':
         if request.method == 'GET':
             try:
+                
                 registered_class = models.RegisteredClassNew.objects.create(conceptual_class_id=models.LiveClass_details.objects.get(id=id), user=request.user)
                 registered_class.save()
                 registered_live_class = models.LiveClass_details.objects.get(id=id)
@@ -355,7 +357,7 @@ def RegisterClassId2(request, type_of_class, id):
 
             registered_class = models.RegisteredClassNew.objects.get(doubtclass_id=models.DoubtClasses.objects.get(id=id), user=request.user)
             registered_class.delete()
-            registered_doubt_class = models.DoubtClasses.objects.get(id=id)
+            registered_doubt_class  = models.DoubtClasses.objects.get(id=id)
             registered_doubt_class.no_of_students_registered -= 1
             registered_doubt_class.save()
             return Response(status=status.HTTP_204_NO_CONTENT)
