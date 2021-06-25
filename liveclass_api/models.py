@@ -1,11 +1,21 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, AbstractUser
 import datetime
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 
 
+
     # Create your models here.
+
+
+# class CustomUser(AbstractUser):
+
+#     CHOICES = (
+#         ('M', 'Mentor'),
+#         ('S', 'Student'),
+#     )
+#     role = models.CharField(max_length=1, choices=CHOICES)
     
 
 # model to store Class standard and can be added certain things that are specific to the standard
