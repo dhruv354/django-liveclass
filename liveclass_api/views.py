@@ -175,10 +175,15 @@ def SavedClassId(request, id):
 @api_view(['GET', 'DELETE'])
 @permission_classes((IsAuthenticated, ))
 def RegisterClassId(request, id):
+    print(request.user.username)
     if request.method == 'GET':
         try:
             registered_class = models.RegisteredClass.objects.create(class_details=models.LiveClass_details.objects.get(id=id), user=request.user)
             registered_class.save()
+            liveclass = models.LiveClass_details.objects.get(id=id)
+            print("liveclass: ", liveclass )
+            liveclass.registered_students.add(request.user.username)
+            liveclass.save()
             registered_live_class = models.LiveClass_details.objects.get(id=id)
             registered_live_class.no_of_students_registered += 1
             registered_live_class.no_of_students_attended += 1
@@ -192,6 +197,9 @@ def RegisterClassId(request, id):
 
         registered_class = models.RegisteredClass.objects.get(class_details=models.LiveClass_details.objects.get(id=id), user=request.user)
         registered_class.delete()
+        liveclass = models.LiveClass_details.objects.get(id=id)
+        liveclass.registered_students.delete(request.user.username)
+        liveclass.save()
         registered_live_class = models.LiveClass_details.objects.get(id=id)
         registered_live_class.no_of_students_registered -= 1
         registered_live_class.no_of_students_attended -= 1
@@ -348,6 +356,10 @@ def RegisterDoubtClassId(request, id):
         try:
             registered_class = models.RegisterDoubtClass.objects.create(doubtclass=models.DoubtClasses.objects.get(id=id), user=request.user)
             registered_class.save()
+            liveclass = models.DoubtClasses.objects.get(id=id)
+            #print("liveclass: ", liveclass )
+            liveclass.registered_students.add(request.user.username)
+            liveclass.save()
             registered_doubt_class = models.DoubtClasses.objects.get(id=id)
             registered_doubt_class.no_of_students_registered += 1
             registered_doubt_class.no_of_students_attended += 1
@@ -361,6 +373,10 @@ def RegisterDoubtClassId(request, id):
 
         registered_class = models.RegisterDoubtClass.objects.get(doubtclass=models.DoubtClasses.objects.get(id=id), user=request.user)
         registered_class.delete()
+        liveclass = models.DoubtClasses.objects.get(id=id)
+        print("liveclass: ", liveclass )
+        liveclass.registered_students.delete(request.user.username)
+        liveclass.save()
         registered_doubt_class = models.DoubtClasses.objects.get(id=id)
         registered_doubt_class.no_of_students_registered -= 1
         registered_doubt_class.no_of_students_attended -= 1

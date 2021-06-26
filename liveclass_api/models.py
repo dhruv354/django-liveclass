@@ -70,6 +70,7 @@ class DoubtClasses(models.Model):
     end_time = models.DateTimeField()
     doubtsAddressed = models.IntegerField(default=0)
     ratings = models.FloatField(default=0)
+    registered_students = models.ManyToManyField(User, null=True, blank=True)
     no_of_students_registered = models.IntegerField(default=0)
     no_of_students_attended = models.IntegerField(default=0)
     mentor_id = models.ForeignKey(Mentor, on_delete=models.CASCADE, null=True)
@@ -93,6 +94,7 @@ class LiveClass_details(models.Model):
     isDraft = models.BooleanField(default=True)
     ratings = models.FloatField(default=0)
     no_of_students_registered = models.IntegerField(default=0)
+    registered_students = models.ManyToManyField(User, null=True, blank=True)
     no_of_students_attended = models.IntegerField(default=0)
     class Meta:
         verbose_name_plural = 'LiveClass_details'
