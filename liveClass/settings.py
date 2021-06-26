@@ -157,3 +157,5 @@ JWT_AUTH = {
 }
 
 LOGIN_URL = '/user/login'
+
+CORS_ALLOW_CREDENTIALS = True

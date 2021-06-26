@@ -69,7 +69,7 @@ class DoubtClasses(models.Model):
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     doubtsAddressed = models.IntegerField(default=0)
-    ratings = models.IntegerField(default=0)
+    ratings = models.FloatField(default=0)
     no_of_students_registered = models.IntegerField(default=0)
     no_of_students_attended = models.IntegerField(default=0)
     mentor_id = models.ForeignKey(Mentor, on_delete=models.CASCADE, null=True)
@@ -91,7 +91,7 @@ class LiveClass_details(models.Model):
     end_time = models.DateTimeField()
     doubtClass = models.OneToOneField(DoubtClasses, on_delete=models.PROTECT, null=True, blank=True)
     isDraft = models.BooleanField(default=True)
-    ratings = models.IntegerField(default=0)
+    ratings = models.FloatField(default=0)
     no_of_students_registered = models.IntegerField(default=0)
     no_of_students_attended = models.IntegerField(default=0)
     class Meta:
@@ -118,6 +118,7 @@ class SavedClass(models.Model):
 class RegisteredClass(models.Model):
     class_details = models.ForeignKey(LiveClass_details, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    ratings = models.FloatField(default=0)
         
     class Meta:
         verbose_name_plural = 'RegisteredClass'
@@ -130,6 +131,7 @@ class RegisteredClass(models.Model):
 class RegisterDoubtClass(models.Model):
     doubtclass = models.ForeignKey(DoubtClasses, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    ratings = models.FloatField(default=0)
         
     class Meta:
         verbose_name_plural = 'RegisteDoubtClass'

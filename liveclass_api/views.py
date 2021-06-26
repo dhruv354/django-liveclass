@@ -1,4 +1,5 @@
 from django.shortcuts import redirect
+from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from rest_framework import mixins
 from rest_framework import generics
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -12,6 +13,7 @@ from django.utils import timezone
 from datetime import datetime
 from rest_framework.permissions import BasePermission, IsAuthenticated, SAFE_METHODS
 from rest_framework.serializers import Serializer
+import json
 
 
 from . import serializers
@@ -365,6 +367,63 @@ def RegisterDoubtClassId(request, id):
         registered_doubt_class.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes((IsAuthenticated, ))
+def liveclassRatings(request, id):
+    print((request.body))
+    print(request.user.id)
+
+    
+    registered_class = models.RegisteredClass.objects.get(user=request.user.id, id=id)
+    liveclass_id = registered_class.class_details.id
+    print("liveclass id: ",liveclass_id)
+    current_ratings = registered_class.ratings
+    data = json.loads(request.body)
+    new_ratings = data['ratings']
+    print("error here regsiteredclass.ratings")
+    registered_class.ratings = new_ratings
+
+    registered_class.save()
+    liveclass = models.LiveClass_details.objects.get(id=liveclass_id)
+    total_ratings = liveclass.ratings * liveclass.no_of_students_registered
+    total_ratings = total_ratings - current_ratings + new_ratings
+    students_registered = liveclass.no_of_students_registered
+    liveclass.ratings = total_ratings/students_registered
+    liveclass.save()
+    return Response("your ratings noted", status=status.HTTP_200_OK)
+
+
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes((IsAuthenticated, ))
+def DoubtclassRatings(request, id):
+    # print((request.body))
+    # print(request.user.id)
+
+    
+    registered_class = models.RegisterDoubtClass.objects.get(user=request.user.id, id=id)
+    doubtclass_id = registered_class.doubtclass.id
+    print("liveclass id: ",doubtclass_id)
+    current_ratings = registered_class.ratings
+    print("current_ratings: ", current_ratings)
+    data = json.loads(request.body)
+    new_ratings = data['ratings']
+    print("new ratings :", new_ratings)
+    registered_class.ratings = new_ratings
+
+    registered_class.save()
+    doubtclass = models.DoubtClasses.objects.get(id=doubtclass_id)
+    total_ratings = doubtclass.ratings * doubtclass.no_of_students_registered
+    total_ratings = total_ratings - current_ratings + new_ratings
+    print("total_ratings", total_ratings)
+    students_registered = doubtclass.no_of_students_registered
+    doubtclass.ratings = total_ratings/students_registered
+    doubtclass.save()
+    return Response("your ratings noted", status=status.HTTP_200_OK)
+    # except Exception as e:
+    #     print(e)
+    #     return Response(e, status=status.HTTP_400_BAD_REQUEST)
 
 
 
