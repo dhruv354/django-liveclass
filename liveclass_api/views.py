@@ -1,3 +1,4 @@
+from typing import Generic
 from django.shortcuts import redirect
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from rest_framework import mixins
@@ -28,6 +29,21 @@ class IsSuperuserOrReadOnly(BasePermission):
             request.user and
             request.user.is_superuser
         )
+
+
+# to get metors by id
+class MentorsId(mixins.RetrieveModelMixin, generics.GenericAPIView):
+    lookup_field = 'id'
+    serializer_class = serializers.Mentor_serializer
+    permission_classes = [IsAuthenticated]
+    def get_queryset(self):
+        return models.Mentor.objects.filter(id=self.kwargs['id'])
+
+    def get(self, request, id=None):
+        if id:
+            return self.retrieve(request, id)
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
 
 # This view enables the user to see and create a liveclass but creation can only be done by the superuser

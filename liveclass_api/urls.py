@@ -9,6 +9,7 @@ urlpatterns = [
     path('liveclass/<int:id>', views.LiveClassViewId.as_view()),
     path('liveclass/<int:id>/chapter-names', views.ChapterNames.as_view()),
     path('mentors/', views.ListMentors.as_view(), name='mentors'),
+    path('mentors/<int:id>', views.MentorsId.as_view()),
     path('userdetails/', views.ListUserDetails.as_view(), name='user-details'),
     path('saved/', views.SavedClassView.as_view(), name='saved'),
     path('saved/<int:id>', views.SavedClassId),
