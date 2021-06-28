@@ -6,7 +6,8 @@ from . import views
 
 urlpatterns = [
     path('questions/', views.QuestionModelView.as_view()),
-    path('questions/<int:id>/', views.QuestionModelViewID.as_view()),
-    path('questions/<int:id>/answer/', views.AnswerModel.as_view()),
-    path('questions/<int:question_id>/answer/<int:answer_id>', views.AnswerModelID)
+    path('questions/<str:type_of_class>/', views.QuestionModelClass.as_view()),
+    path('questions/<str:type_of_class>/<int:pk>/', views.QuestionModelViewID.as_view()),
+    path('answers/<int:question_id>/', views.AnswerModel.as_view()),
+    path('answers/<int:question_id>/<int:pk>/', views.AnswerModelId.as_view())
 ]

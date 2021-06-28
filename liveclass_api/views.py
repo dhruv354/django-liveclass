@@ -182,7 +182,7 @@ def RegisterClassId(request, id):
             registered_class.save()
             liveclass = models.LiveClass_details.objects.get(id=id)
             print("liveclass: ", liveclass )
-            liveclass.registered_students.add(request.user.username)
+            liveclass.registered_students.add(request.user)
             liveclass.save()
             registered_live_class = models.LiveClass_details.objects.get(id=id)
             registered_live_class.no_of_students_registered += 1
@@ -198,7 +198,7 @@ def RegisterClassId(request, id):
         registered_class = models.RegisteredClass.objects.get(class_details=models.LiveClass_details.objects.get(id=id), user=request.user)
         registered_class.delete()
         liveclass = models.LiveClass_details.objects.get(id=id)
-        liveclass.registered_students.delete(request.user.username)
+        liveclass.registered_students.delete(request.user)
         liveclass.save()
         registered_live_class = models.LiveClass_details.objects.get(id=id)
         registered_live_class.no_of_students_registered -= 1
@@ -358,7 +358,7 @@ def RegisterDoubtClassId(request, id):
             registered_class.save()
             liveclass = models.DoubtClasses.objects.get(id=id)
             #print("liveclass: ", liveclass )
-            liveclass.registered_students.add(request.user.username)
+            liveclass.registered_students.add(request.user)
             liveclass.save()
             registered_doubt_class = models.DoubtClasses.objects.get(id=id)
             registered_doubt_class.no_of_students_registered += 1
@@ -375,7 +375,7 @@ def RegisterDoubtClassId(request, id):
         registered_class.delete()
         liveclass = models.DoubtClasses.objects.get(id=id)
         print("liveclass: ", liveclass )
-        liveclass.registered_students.delete(request.user.username)
+        liveclass.registered_students.delete(request.user)
         liveclass.save()
         registered_doubt_class = models.DoubtClasses.objects.get(id=id)
         registered_doubt_class.no_of_students_registered -= 1
