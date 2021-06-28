@@ -233,3 +233,27 @@ class AnswerModelId(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.D
         return Response("you cannot update this question", status=status.HTTP_401_UNAUTHORIZED)
 
     
+ 
+class ClassBasedQuestions(mixins.ListModelMixin, GenericAPIView):
+
+    serializer_class = serializers.QuestionModel_serializer 
+    lookup_fields = ('type_of_class', 'pk')
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        type_of_class = self.kwargs['type_of_class']
+        pk = self.kwargs['pk']
+        if type_of_class == 'doubtclass':
+            query =  models.QuestionModel.objects.filter(doubt_class_id__isnull=False).filter(doubt_class_id=pk)
+            print(query)
+            return query
+        elif type_of_class == 'liveclass':
+            query  =  models.QuestionModel.objects.filter(conceptual_class_id = pk)
+            print(query)
+            return query
+    
+    def get(self, request, type_of_class=None, pk=None):
+        if pk:
+            return self.list(request, type_of_class, pk)
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)

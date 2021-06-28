@@ -220,10 +220,11 @@ def RegisterClass(request):
 
 
 # to list all the drafts of the classes
-class ListDrafts(LoginRequiredMixin, mixins.ListModelMixin, generics.GenericAPIView):
+class ListDrafts( mixins.ListModelMixin, generics.GenericAPIView):
 
     serializer_class = serializers.LiveClass_details_serializer
     queryset = models.LiveClass_details.objects.filter(isDraft=True)
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         if request.user.is_superuser:
