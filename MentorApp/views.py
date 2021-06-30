@@ -33,6 +33,22 @@ class MultipleFieldLookupORMixin(object):
                 pass
         return get_object_or_404(queryset, **filter)  # Lookup the object
 
+class QuestionUpdateMixin:
+    """
+    Question Update View Mixin
+    """
+    def dispatch(self, request, pk, *args, **kwargs):
+        if request.user.is_superuser: # or any other condition
+            self.fields = [
+                'answer',
+            ]
+        else:
+            self.fields = [
+                'doubt_class_id', 'conceptual_class_id', 'mentor', 'question',
+            ]
+
+        return super().dispatch(request, pk, *args, **kwargs)  
+
 
 class QuestionModelView(mixins.ListModelMixin, GenericAPIView):
     queryset = models.QuestionModel.objects.all()
@@ -64,7 +80,7 @@ class QuestionModelClass(mixins.ListModelMixin, mixins.CreateModelMixin,  Generi
         return self.list(request, type_of_class)
 
     def post(self, request, type_of_class=None):
-        if int(request.POST.get('author')) != self.request.user.id:
+        if int(request.data.get('author')) != self.request.user.id:
             return Response("you cannot create for any  other user question", status=status.HTTP_405_METHOD_NOT_ALLOWED)
         return self.create(request, type_of_class)
 
@@ -109,59 +125,96 @@ class QuestionModelViewID(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixi
     permission_classes = [IsAuthenticated]
     lookup_fields = ('type_of_class', 'pk')
     def get_queryset(self):
+        print(self.kwargs['type_of_class'])
         type_of_class = self.kwargs['type_of_class']
         if type_of_class == 'doubtclass':
+            print('error here')
             return models.QuestionModel.objects.filter(id=self.kwargs['pk'])
         elif type_of_class == 'liveclass':
             return models.QuestionModel.objects.filter(id=self.kwargs['pk'])
-    def get(self, request, type_of_class=None,pk=None):
+    def get(self, request,type_of_class ,pk=None):
+        print('error here')
         if pk:
-            return self.retrieve(request, type_of_class, pk)
+            return self.list(request, type_of_class, pk)
         else:
             return Response(status=status.HTTP_204_NO_CONTENT)
 
     def put(self, request, type_of_class=None,pk=None):
         if int(request.data.get('author')) != self.request.user.id:
             return Response("you cannot edit othe user question", status=status.HTTP_405_METHOD_NOT_ALLOWED)
-        if pk:
+        
+        try:
             question_id = models.QuestionModel.objects.filter(id=pk).first()
-            #if answer originally exists
-            print(question_id.answer)
-            print(request.user.is_superuser)
-            if len(question_id.answer) > 0:
-                self.update(request, type_of_class, pk)
-                #self.update(request, type_of_class, pk)
-                if len(question_id.answer) > 0 :
-                    return Response("Successfully updated answer", status=status.HTTP_200_OK)
-                # this means that answer is deleted so decrease doubt address count
-                else:
-                    if type_of_class =='doubtclass':
-                        class_id = question_id.doubt_class_id
-                    elif type_of_class == 'liveclass':
-                        class_id = question_id.conceptual_class_id
-                    class_id.doubtsAddressed -= 1
-                    class_id.save()
-                    return Response("Successfully deleted answer", status=status.HTTP_200_OK)
-
-            #if answer is not originally there
-            self.update(request, type_of_class, pk)
-            #this means that a student has updated his answer
-            if question_id.answer == '':
-                return Response("successfully updated a question", status=status.HTTP_200_OK)
-            #this means that a mentor has posted a answer
             if type_of_class =='doubtclass':
-                print("type_of_class =='doubtclass'")
                 class_id = question_id.doubt_class_id
             elif type_of_class == 'liveclass':
-                print("type_of_class =='conceptual_class'")
                 class_id = question_id.conceptual_class_id
-                print(class_id)
-            class_id.doubtsAddressed += 1
-            class_id.save()
-            return Response("Successfully posted answer", status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response(e)
+        if request.user.is_superuser:
+            #he can only update, delete, or add a new answer
+            initial_answer_length = len(question_id.answer)
+            #post a answer
+            if initial_answer_length == 0:
+                self.update(request, type_of_class, pk)
+                if len(question_id.answer) == 0:
+                    return Response("please post an answer", status=status.HTTP_200_OK)
+                class_id.doubtsAddressed += 1
+                class_id.save()
+                return Response("Successfully posted answer", status=status.HTTP_200_OK)
+            elif initial_answer_length != 0:
+                #two cases are possible either update the answer or delete the answer
+                self.update(request, type_of_class, pk)
+                print(request.data.get('answer'))
+                
+                #answer is deleted
+                print(len(question_id.answer))
+                if len(question_id.answer) == 0:
+                    class_id.doubtsAddressed -= 1
+                    return Response("successfully deleted the answer", status=status.HTTP_204_NO_CONTENT)
+                #answer is deleted
+                else:
+                    return Response("successfully updated the answer", status=status.HTTP_200_OK)
+            return self.update(request, type_of_class, pk)
+        # if pk:
+        #     question_id = models.QuestionModel.objects.filter(id=pk).first()
+            #if answer originally exists
+            # print(question_id.answer)
+            # print(request.user.is_superuser)
+            # if len(question_id.answer) > 0:
+            #     self.update(request, type_of_class, pk)
+            #     #self.update(request, type_of_class, pk)
+            #     if len(question_id.answer) > 0 :
+            #         return Response("Successfully updated answer", status=status.HTTP_200_OK)
+            #     # this means that answer is deleted so decrease doubt address count
+            #     else:
+            #         if type_of_class =='doubtclass':
+            #             class_id = question_id.doubt_class_id
+            #         elif type_of_class == 'liveclass':
+            #             class_id = question_id.conceptual_class_id
+            #         class_id.doubtsAddressed -= 1
+            #         class_id.save()
+            #         return Response("Successfully deleted answer", status=status.HTTP_200_OK)
 
-        else:
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            #if answer is not originally there
+        #     self.update(request, type_of_class, pk)
+        #     #this means that a student has updated his answer
+        #     if question_id.answer == '':
+        #         return Response("successfully updated a question", status=status.HTTP_200_OK)
+        #     #this means that a mentor has posted a answer
+        #     if type_of_class =='doubtclass':
+        #         print("type_of_class =='doubtclass'")
+        #         class_id = question_id.doubt_class_id
+        #     elif type_of_class == 'liveclass':
+        #         print("type_of_class =='conceptual_class'")
+        #         class_id = question_id.conceptual_class_id
+        #         print(class_id)
+        #     class_id.doubtsAddressed += 1
+        #     class_id.save()
+        #     return Response("Successfully posted answer", status=status.HTTP_200_OK)
+
+        # else:
+        #     return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, type_of_class=None, pk=None):
         author_id = models.QuestionModel.objects.filter(id=pk).values('author_id').first()['author_id']
@@ -175,7 +228,23 @@ class QuestionModelViewID(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixi
 
 
 
-# 
+# # 
+# @api_view(['GET'])
+# @permission_classes((IsAuthenticated, ))
+# def QuestionModelID(request, type_of_class, id):
+    
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 class AnswerModel(mixins.ListModelMixin, mixins.CreateModelMixin, GenericAPIView):
