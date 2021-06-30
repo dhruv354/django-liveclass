@@ -107,7 +107,6 @@ class QuestionModelViewID(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixi
     queryset = models.QuestionModel.objects.all()
     serializer_class = serializers.QuestionModel_serializer
     permission_classes = [IsAuthenticated]
-    permission_classes = [IsAuthenticated]
     lookup_fields = ('type_of_class', 'pk')
     def get_queryset(self):
         type_of_class = self.kwargs['type_of_class']
@@ -131,7 +130,21 @@ class QuestionModelViewID(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixi
         if int(request.data.get('author')) != self.request.user.id:
             return Response("you cannot edit othe user question", status=status.HTTP_405_METHOD_NOT_ALLOWED)
         if pk:
-                return self.update(request, type_of_class, pk)
+            self.update(request, type_of_class, pk)
+            question_id = models.QuestionModel.objects.filter(id=pk).first()
+            if question_id.answer == '':
+                return Response("successfully updated a question", status=status.HTTP_200_OK)
+            if type_of_class =='doubtclass':
+                print("type_of_class =='doubtclass'")
+                class_id = question_id.doubt_class_id
+            elif type_of_class == 'liveclass':
+                print("type_of_class =='conceptual_class'")
+                class_id = question_id.conceptual_class_id
+                print(class_id)
+            class_id.doubtsAddressed += 1
+            class_id.save()
+            return Response("Successfully posted answer", status=status.HTTP_200_OK)
+
         else:
             return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -145,7 +158,6 @@ class QuestionModelViewID(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixi
             return Response(status=status.HTTP_204_NO_CONTENT)
         
 
-        
 
 
 # 
@@ -165,6 +177,8 @@ class AnswerModel(mixins.ListModelMixin, mixins.CreateModelMixin, GenericAPIView
             return Response("such question with this id does not exists", status=status.HTTP_404_NOT_FOUND)
     
     def get(self, request, question_id=None):
+        question = models.QuestionModel.objects.filter(id=question_id).first()
+
         return self.list(request, question_id)
       
     def post(self, request, question_id=None):
@@ -235,7 +249,7 @@ class AnswerModelId(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.D
     
 class ClassBasedQuestions(mixins.ListModelMixin, GenericAPIView):
 
-    serializer_class = serializers.AnswerModel_serializer
+    serializer_class = serializers.QuestionModel_serializer
     lookup_fields = ('type_of_class', 'pk')
     permission_classes = [IsAuthenticated]
 

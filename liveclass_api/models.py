@@ -98,6 +98,7 @@ class LiveClass_details(models.Model):
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     doubtClass = models.OneToOneField(DoubtClasses, on_delete=models.PROTECT, null=True, blank=True)
+    doubtsAddressed = models.IntegerField(default=0)
     isDraft = models.BooleanField(default=True)
     ratings = models.FloatField(default=0)
     no_of_students_registered = models.IntegerField(default=0)
