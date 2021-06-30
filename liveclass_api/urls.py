@@ -22,6 +22,7 @@ urlpatterns = [
     path('drafts/<int:id>', views.DraftClassId.as_view()),
     path('registerdoubtclass/', views.RegisterDoubtClass),
     path('registerdoubtclass/<int:id>/', views.RegisterDoubtClassId),
+    path('registerdoubtclass/<int:id>/registered-students', views.RegisteredStudentsNamesdoubt),
     path('registerdoubtclass/ratings/<int:id>', views.DoubtclassRatings),
     # path('registerclass/<str:type_of_class>/<int:id>', views.RegisterClassId2),
     # path('registerclassnew/', views.RegisterClass2),

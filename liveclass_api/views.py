@@ -208,10 +208,11 @@ def RegisterClassId(request, id):
             registered_live_class.no_of_students_attended -= 1
         registered_live_class.save()
         print('error here')
-        registered_name = models.RegisteredNames.objects.filter(name=request.user.username)
+        registered_name = models.RegisteredNames.objects.filter(name=request.user.username).first()
         print('error after registered name')
         print(registered_name)
-        registered_name.delete()
+        registered_live_class.registered_students.remove(registered_name.id)
+        registered_live_class.save()
 
 
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -369,7 +370,8 @@ def RegisterDoubtClassId(request, id):
             registered_class.save()
             liveclass = models.DoubtClasses.objects.get(id=id)
             #print("liveclass: ", liveclass )
-            liveclass.registered_students.add(request.user)
+            registered_student = models.RegisteredNames(name=request.user.username)
+            registered_student.save()
             liveclass.save()
             registered_doubt_class = models.DoubtClasses.objects.get(id=id)
             registered_doubt_class.no_of_students_registered += 1
@@ -384,15 +386,16 @@ def RegisterDoubtClassId(request, id):
 
         registered_class = models.RegisterDoubtClass.objects.get(doubtclass=models.DoubtClasses.objects.get(id=id), user=request.user)
         registered_class.delete()
-        liveclass = models.DoubtClasses.objects.get(id=id)
-        print("liveclass: ", liveclass )
-        liveclass.registered_students.delete(request.user)
-        liveclass.save()
-        registered_doubt_class = models.DoubtClasses.objects.get(id=id)
-        registered_doubt_class.no_of_students_registered -= 1
-        registered_doubt_class.no_of_students_attended -= 1
-        registered_doubt_class.save()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        # liveclass = models.DoubtClasses.objects.get(id=id)
+        registered_live_class = models.DoubtClasses.objects.get(id=id)
+        if(registered_live_class.no_of_students_registered > 0):
+            registered_live_class.no_of_students_registered -= 1
+            registered_live_class.no_of_students_attended -= 1
+        registered_live_class.save()
+        print('error here')
+        registered_name = models.RegisteredNames.objects.filter(name=request.user.username).first()
+        registered_live_class.registered_students.remove(registered_name.id)
+        registered_live_class.save()
     
 @csrf_exempt
 @api_view(['POST'])
@@ -522,6 +525,21 @@ class RegisteredStudentsNames(mixins.ListModelMixin, generics.GenericAPIView):
         else:
             return Response(status=status.HTTP_204_NO_CONTENT)
 
+    
+class RegisteredStudentsNamesdoubt(mixins.ListModelMixin, generics.GenericAPIView):
+    serializer_class = serializers.RegisterNames_serializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'id'
+    def get_queryset(self):
+        liveclass_id = models.DoubtClasses.objects.filter(id=self.kwargs['id']).first()
+        print(liveclass_id)
+        registered_students = liveclass_id.registered_students.all()
+        return registered_students
+        # return registered_students_id
+    
+    def get(self, request, id):
+        if id:
+            return self.list(request, id)
+        else:
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
-
-  
