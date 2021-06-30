@@ -183,8 +183,11 @@ def RegisterClassId(request, id):
             registered_class.save()
             liveclass = models.LiveClass_details.objects.get(id=id)
             #print("liveclass: ", liveclass )
-            registered_student = models.RegisteredNames(name=request.user.username)
-            registered_student.save()
+            try:
+                registered_student = models.RegisteredNames(name=request.user.username)
+                registered_student.save()
+            except:
+                registered_student = models.RegisteredNames.objects.filter(name=request.user.username).first()
             liveclass.registered_students.add(registered_student)
             # liveclass.save()
             # registered_doubt_class = models.DoubtClasses.objects.get(id=id)
@@ -370,8 +373,12 @@ def RegisterDoubtClassId(request, id):
             registered_class.save()
             liveclass = models.DoubtClasses.objects.get(id=id)
             #print("liveclass: ", liveclass )
-            registered_student = models.RegisteredNames(name=request.user.username)
-            registered_student.save()
+            try:
+                registered_student = models.RegisteredNames(name=request.user.username)
+                registered_student.save()
+            except:
+                registered_student = models.RegisteredNames.objects.filter(name=request.user.username).first()
+            liveclass.registered_students.add(registered_student)
             liveclass.save()
             registered_doubt_class = models.DoubtClasses.objects.get(id=id)
             registered_doubt_class.no_of_students_registered += 1
