@@ -81,6 +81,7 @@ class DoubtClasses(models.Model):
     no_of_students_registered = models.IntegerField(default=0)
     no_of_students_attended = models.IntegerField(default=0)
     mentor_id = models.ForeignKey(Mentor, on_delete=models.CASCADE, null=True)
+    isDraft = models.BooleanField(default=False)
 
     class Meta:
         verbose_name_plural = 'DoubtClasses'
@@ -149,19 +150,6 @@ class RegisterDoubtClass(models.Model):
 
 
    
-
-#         # try:
-#         #     RegisteredClassNew.objects.get(user=self.cleaned_data['user'], 
-#         #                         doubtclass_id=self.cleaned_data['doubtclass_id'],
-#         #                         conceptual_class_id=self.cleaned_data['conceptual_class_id']
-#         #                        )
-#         #     #if we get this far, we have an exact match for this form's data
-#         #     raise ValidationError("Exists already!")
-#         # except RegisteredClassNew.DoesNotExist:
-#         #     #because we didn't get a match
-#         #     pass
-
-#         # return self.cleaned_data
 
 
 
