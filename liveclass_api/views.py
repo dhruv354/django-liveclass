@@ -333,7 +333,7 @@ class DoubtClassId(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Upda
 
 #view to list all the chapternames 
 class ChapterNames(mixins.ListModelMixin, generics.GenericAPIView):
-    serializer_class = serializers.chapterNames_serializer
+    serializer_class = serializers.ChapterNames_serializer
     # queryset = models.LiveClass_details.objects.filter(id=id).first().chapter_ids.all()
     permission_classes = [IsAuthenticated]
     lookup_field = 'id'
@@ -550,3 +550,11 @@ class RegisteredStudentsNamesdoubt(mixins.ListModelMixin, generics.GenericAPIVie
         else:
             return Response(status=status.HTTP_204_NO_CONTENT)
 
+class AllChapterNames(mixins.ListModelMixin, generics.GenericAPIView):
+    serializer_class = serializers.ChapterNames_serializer
+    permission_classes = [IsAuthenticated]
+    queryset = models.ChapterNames.objects.all()
+    # lookup_field = 'id'
+
+    def get(self, request):
+        return self.list(request)

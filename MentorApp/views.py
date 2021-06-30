@@ -114,10 +114,6 @@ class QuestionModelViewID(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixi
             return models.QuestionModel.objects.filter(id=self.kwargs['pk'])
         elif type_of_class == 'liveclass':
             return models.QuestionModel.objects.filter(id=self.kwargs['pk'])
-
-    # def get_object(self, pk=None):
-    #     return models.QuestionModel.objects.filter(id=pk)
-
     def get(self, request, type_of_class=None,pk=None):
         if pk:
             return self.retrieve(request, type_of_class, pk)
@@ -125,15 +121,34 @@ class QuestionModelViewID(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixi
             return Response(status=status.HTTP_204_NO_CONTENT)
 
     def put(self, request, type_of_class=None,pk=None):
-        # print(type((request.data.get('author'))))
-        # print(request.data)
         if int(request.data.get('author')) != self.request.user.id:
             return Response("you cannot edit othe user question", status=status.HTTP_405_METHOD_NOT_ALLOWED)
         if pk:
-            self.update(request, type_of_class, pk)
             question_id = models.QuestionModel.objects.filter(id=pk).first()
+            #if answer originally exists
+            print(question_id.answer)
+            print(request.user.is_superuser)
+            if len(question_id.answer) > 0:
+                self.update(request, type_of_class, pk)
+                #self.update(request, type_of_class, pk)
+                if len(question_id.answer) > 0 :
+                    return Response("Successfully updated answer", status=status.HTTP_200_OK)
+                # this means that answer is deleted so decrease doubt address count
+                else:
+                    if type_of_class =='doubtclass':
+                        class_id = question_id.doubt_class_id
+                    elif type_of_class == 'liveclass':
+                        class_id = question_id.conceptual_class_id
+                    class_id.doubtsAddressed -= 1
+                    class_id.save()
+                    return Response("Successfully deleted answer", status=status.HTTP_200_OK)
+
+            #if answer is not originally there
+            self.update(request, type_of_class, pk)
+            #this means that a student has updated his answer
             if question_id.answer == '':
                 return Response("successfully updated a question", status=status.HTTP_200_OK)
+            #this means that a mentor has posted a answer
             if type_of_class =='doubtclass':
                 print("type_of_class =='doubtclass'")
                 class_id = question_id.doubt_class_id
@@ -206,45 +221,45 @@ class AnswerModel(mixins.ListModelMixin, mixins.CreateModelMixin, GenericAPIView
 #             if serializer.is_valid():
 #                 serializer.save()
 #                 return Response(serializer.data)
-#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-#         else:
-#             return Response("only for mentors", status=status.HTTP_401_UNAUTHORIZED)
+# #             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# #         else:
+# #             return Response("only for mentors", status=status.HTTP_401_UNAUTHORIZED)
     
-#     elif request.method == 'DELETE':
-#         if request.user.is_auperuser:
-#             particular_answer.delete()
-#             return Response(status=status.HTTP_204_NO_CONTENT)
+# #     elif request.method == 'DELETE':
+# #         if request.user.is_auperuser:
+# #             particular_answer.delete()
+# #             return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class AnswerModelId(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, GenericAPIView):
-    serializer_class = serializers.AnswerModel_serializer
-    lookup_fields = ('question_id', 'pk')
-    permission_classes = [IsAuthenticated]
+# class AnswerModelId(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, GenericAPIView):
+#     serializer_class = serializers.AnswerModel_serializer
+#     lookup_fields = ('question_id', 'pk')
+#     permission_classes = [IsAuthenticated]
 
-    def get_queryset(self):
-        return models.AnswersModel.objects.filter(id=self.kwargs['pk'])
+#     def get_queryset(self):
+#         return models.AnswersModel.objects.filter(id=self.kwargs['pk'])
 
-    def get(self, request, question_id=None, pk=None):
-        if pk and question_id:
-            return self.retrieve(request, question_id, pk)
-        else:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+#     def get(self, request, question_id=None, pk=None):
+#         if pk and question_id:
+#             return self.retrieve(request, question_id, pk)
+#         else:
+#             return Response(status=status.HTTP_404_NOT_FOUND)
 
-    def put(self, request, question_id=None, pk=None):
-        if request.is_superuser:
-            if pk and question_id:
-                return self.put(request, question_id, pk)
-            else:
-                return Response(status=status.HTTP_404_NOT_FOUND)
-        return Response("you cannot update this question", status=status.HTTP_401_UNAUTHORIZED)
+#     def put(self, request, question_id=None, pk=None):
+#         if request.is_superuser:
+#             if pk and question_id:
+#                 return self.put(request, question_id, pk)
+#             else:
+#                 return Response(status=status.HTTP_404_NOT_FOUND)
+#         return Response("you cannot update this question", status=status.HTTP_401_UNAUTHORIZED)
 
-    def delete(self, request, question_id=None, pk=None):
-        if request.is_superuser:
-            if question_id and pk:
-                return self.destroy(request, question_id, pk)
-            else:
-                return Response(status=status.HTTP_404_NOT_FOUND)
-        return Response("you cannot update this question", status=status.HTTP_401_UNAUTHORIZED)
+#     def delete(self, request, question_id=None, pk=None):
+#         if request.is_superuser:
+#             if question_id and pk:
+#                 return self.destroy(request, question_id, pk)
+#             else:
+#                 return Response(status=status.HTTP_404_NOT_FOUND)
+#         return Response("you cannot update this question", status=status.HTTP_401_UNAUTHORIZED)
 
     
 class ClassBasedQuestions(mixins.ListModelMixin, GenericAPIView):
