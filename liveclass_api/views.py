@@ -175,35 +175,45 @@ def SavedClassId(request, id):
 @api_view(['GET', 'DELETE'])
 @permission_classes((IsAuthenticated, ))
 def RegisterClassId(request, id):
-    print(request.user.username)
+    print(request.method)
+
     if request.method == 'GET':
         try:
             registered_class = models.RegisteredClass.objects.create(class_details=models.LiveClass_details.objects.get(id=id), user=request.user)
             registered_class.save()
             liveclass = models.LiveClass_details.objects.get(id=id)
-            print("liveclass: ", liveclass )
-            liveclass.registered_students.add(request.user)
+            #print("liveclass: ", liveclass )
+            registered_student = models.RegisteredNames(name=request.user.username)
+            registered_student.save()
+            liveclass.registered_students.add(registered_student)
+            # liveclass.save()
+            # registered_doubt_class = models.DoubtClasses.objects.get(id=id)
+            liveclass.no_of_students_registered += 1
+            liveclass.no_of_students_attended += 1
             liveclass.save()
-            registered_live_class = models.LiveClass_details.objects.get(id=id)
-            registered_live_class.no_of_students_registered += 1
-            registered_live_class.no_of_students_attended += 1
-            registered_live_class.save()
         except Exception as e:
             return Response("Already registered")
        
         return Response(status=status.HTTP_201_CREATED)
 
     elif request.method == 'DELETE':
-
+        print("in delete method")
         registered_class = models.RegisteredClass.objects.get(class_details=models.LiveClass_details.objects.get(id=id), user=request.user)
+        print("registere_class : ", registered_class)
         registered_class.delete()
-        liveclass = models.LiveClass_details.objects.get(id=id)
-        liveclass.registered_students.delete(request.user)
-        liveclass.save()
+        # registered_class.save()
         registered_live_class = models.LiveClass_details.objects.get(id=id)
-        registered_live_class.no_of_students_registered -= 1
-        registered_live_class.no_of_students_attended -= 1
+        if(registered_live_class.no_of_students_registered > 0):
+            registered_live_class.no_of_students_registered -= 1
+            registered_live_class.no_of_students_attended -= 1
         registered_live_class.save()
+        print('error here')
+        registered_name = models.RegisteredNames.objects.filter(name=request.user.username)
+        print('error after registered name')
+        print(registered_name)
+        registered_name.delete()
+
+
         return Response(status=status.HTTP_204_NO_CONTENT)
     
 
@@ -220,10 +230,11 @@ def RegisterClass(request):
 
 
 # to list all the drafts of the classes
-class ListDrafts(LoginRequiredMixin, mixins.ListModelMixin, generics.GenericAPIView):
+class ListDrafts(mixins.ListModelMixin, generics.GenericAPIView):
 
     serializer_class = serializers.LiveClass_details_serializer
     queryset = models.LiveClass_details.objects.filter(isDraft=True)
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         if request.user.is_superuser:
@@ -494,4 +505,23 @@ def DoubtclassRatings(request, id):
 #             registered_doubt_class.save()
 #             return Response(status=status.HTTP_204_NO_CONTENT)
 
+class RegisteredStudentsNames(mixins.ListModelMixin, generics.GenericAPIView):
+    serializer_class = serializers.RegisterNames_serializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'id'
+    def get_queryset(self):
+        liveclass_id = models.LiveClass_details.objects.filter(id=self.kwargs['id']).first()
+        print(liveclass_id)
+        registered_students = liveclass_id.registered_students.all()
+        return registered_students
+        # return registered_students_id
     
+    def get(self, request, id):
+        if id:
+            return self.list(request, id)
+        else:
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+
+  

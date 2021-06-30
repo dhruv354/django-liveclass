@@ -32,9 +32,10 @@ class LiveClass(models.Model):
 # contains current user details
 class User_details(models.Model):
     name = models.OneToOneField(User, on_delete = models.CASCADE, max_length=30)
+    username = models.CharField(max_length=50, null=True, blank=True)
     standard = models.IntegerField(default=0)
-    email = models.EmailField()
-    mobile_number = models.IntegerField()
+    email = models.EmailField(default='abc@gmail.com')
+    mobile_number = models.IntegerField(default=0)
     class Meta:
         verbose_name_plural = 'User_details'
 
@@ -61,6 +62,12 @@ class ChapterNames(models.Model):
 
     def __str__(self):
         return self.chapter_names
+
+
+class RegisteredNames(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+
 
 
 #model for doubt classes
@@ -94,7 +101,7 @@ class LiveClass_details(models.Model):
     isDraft = models.BooleanField(default=True)
     ratings = models.FloatField(default=0)
     no_of_students_registered = models.IntegerField(default=0)
-    registered_students = models.ManyToManyField(User, null=True, blank=True)
+    registered_students = models.ManyToManyField(RegisteredNames, null=True, blank=True)
     no_of_students_attended = models.IntegerField(default=0)
     class Meta:
         verbose_name_plural = 'LiveClass_details'

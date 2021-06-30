@@ -59,6 +59,10 @@ class RegisterDoubtclass_serializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class RegisterNames_serializer(serializers.ModelSerializer):
+      class Meta:
+        model = models.RegisteredNames
+        fields = '__all__'
 
 
 
