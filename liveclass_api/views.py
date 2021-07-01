@@ -250,11 +250,7 @@ def RegisterClass(request):
 
 
 # to list all the drafts of the classes
-<<<<<<< HEAD
 class ListDrafts(mixins.ListModelMixin, generics.GenericAPIView):
-=======
-class ListDrafts( mixins.ListModelMixin, generics.GenericAPIView):
->>>>>>> baa7c71272e31124a6e8134d3246ada4e0ebb9b0
 
     serializer_class = serializers.LiveClass_details_serializer
     queryset = models.LiveClass_details.objects.filter(isDraft=True)

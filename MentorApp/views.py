@@ -119,8 +119,7 @@ class QuestionModelClass(mixins.ListModelMixin, mixins.CreateModelMixin,  Generi
 
 
 
-class QuestionModelViewID(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, GenericAPIView):
-    queryset = models.QuestionModel.objects.all()
+class QuestionModelViewID(mixins.ListModelMixin, mixins.RetrieveModelMixin,mixins.DestroyModelMixin, GenericAPIView):
     serializer_class = serializers.QuestionModel_serializer
     permission_classes = [IsAuthenticated]
     lookup_fields = ('type_of_class', 'pk')
@@ -228,15 +227,51 @@ class QuestionModelViewID(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixi
 
 
 
-# # 
-# @api_view(['GET'])
-# @permission_classes((IsAuthenticated, ))
-# def QuestionModelID(request, type_of_class, id):
-    
+
+@api_view(['PUT'])
+@permission_classes((IsAuthenticated, ))
+
+def QuestionModelIDPut(request, type_of_class, id):
+        try:
+            question_id = models.QuestionModel.objects.filter(id=id).first()
+            if type_of_class =='doubtclass':
+                class_id = question_id.doubt_class_id
+            elif type_of_class == 'liveclass':
+                class_id = question_id.conceptual_class_id
+        except Exception as e:
+            return Response(e, status=status.HTTP_400_BAD_REQUEST)
+        serializer = serializers.QuestionModel_serializer(question_id, request.data)
+        initial_answer_length = len(question_id.answer)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if initial_answer_length == 0:
+            print("initial length is 0")
+            serializer.save()
+            question = models.QuestionModel.objects.filter(id=id).first()
+            if len(question.answer) == 0:
+                print("initial length still zero")
+                return Response("please post a answer")
+            else:
+                print("posted  a new answer")
+                class_id.doubtsAddressed += 1
+                class_id.save()
+                return Response(serializer.data)
+        else:
+            serializer.save()
+            question = models.QuestionModel.objects.filter(id=id).first()
+            print("initial length non zer0")
+            if len(question.answer) == 0:
+                print("final length has become zero")
+                class_id.doubtsAddressed -= 1
+                class_id.save()
+                return Response(serializer.data, status=status.HTTP_204_NO_CONTENT)
+            else:
+                print("final length is also non zero")
+                return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 
-
+        
 
 
 
