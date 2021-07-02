@@ -73,8 +73,8 @@ class RegisteredNames(models.Model):
 #model for doubt classes
 class DoubtClasses(models.Model):
     doubtClass_details = models.TextField()
-    start_time = models.DateTimeField()
-    end_time = models.DateTimeField()
+    start_time = models.DateTimeField(null=True, blank=True)
+    end_time = models.DateTimeField(null=True, blank=True)
     doubtsAddressed = models.IntegerField(default=0)
     ratings = models.FloatField(default=0)
     registered_students = models.ManyToManyField(RegisteredNames, null=True, blank=True)
@@ -96,9 +96,9 @@ class LiveClass_details(models.Model):
     chapter_ids = models.ManyToManyField(ChapterNames)
     chapter_details = models.TextField(default='')
     mentor_id = models.ForeignKey(Mentor, max_length=30, on_delete=models.CASCADE)
-    start_time = models.DateTimeField()
-    end_time = models.DateTimeField()
-    doubtClass = models.OneToOneField(DoubtClasses, on_delete=models.PROTECT, null=True, blank=True)
+    start_time = models.DateTimeField(null=True, blank=True)
+    end_time = models.DateTimeField(null=True, blank=True)
+    doubtClass = models.OneToOneField(DoubtClasses, on_delete=models.CASCADE, null=True, blank=True)
     doubtsAddressed = models.IntegerField(default=0)
     isDraft = models.BooleanField(default=True)
     ratings = models.FloatField(default=0)

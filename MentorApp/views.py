@@ -138,43 +138,7 @@ class QuestionModelViewID(mixins.ListModelMixin, mixins.RetrieveModelMixin,mixin
         else:
             return Response(status=status.HTTP_204_NO_CONTENT)
 
-    def put(self, request, type_of_class=None,pk=None):
-        if int(request.data.get('author')) != self.request.user.id:
-            return Response("you cannot edit othe user question", status=status.HTTP_405_METHOD_NOT_ALLOWED)
-        
-        try:
-            question_id = models.QuestionModel.objects.filter(id=pk).first()
-            if type_of_class =='doubtclass':
-                class_id = question_id.doubt_class_id
-            elif type_of_class == 'liveclass':
-                class_id = question_id.conceptual_class_id
-        except Exception as e:
-            return Response(e)
-        if request.user.is_superuser:
-            #he can only update, delete, or add a new answer
-            initial_answer_length = len(question_id.answer)
-            #post a answer
-            if initial_answer_length == 0:
-                self.update(request, type_of_class, pk)
-                if len(question_id.answer) == 0:
-                    return Response("please post an answer", status=status.HTTP_200_OK)
-                class_id.doubtsAddressed += 1
-                class_id.save()
-                return Response("Successfully posted answer", status=status.HTTP_200_OK)
-            elif initial_answer_length != 0:
-                #two cases are possible either update the answer or delete the answer
-                self.update(request, type_of_class, pk)
-                print(request.data.get('answer'))
-                
-                #answer is deleted
-                print(len(question_id.answer))
-                if len(question_id.answer) == 0:
-                    class_id.doubtsAddressed -= 1
-                    return Response("successfully deleted the answer", status=status.HTTP_204_NO_CONTENT)
-                #answer is deleted
-                else:
-                    return Response("successfully updated the answer", status=status.HTTP_200_OK)
-            return self.update(request, type_of_class, pk)
+    # s
         # if pk:
         #     question_id = models.QuestionModel.objects.filter(id=pk).first()
             #if answer originally exists
