@@ -346,6 +346,6 @@ class ClassBasedQuestions(mixins.ListModelMixin, GenericAPIView):
     
     def get(self, request, type_of_class=None, pk=None):
         if pk:
-            return self.get(request, type_of_class, pk)
+            return self.list(request, type_of_class, pk)
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
