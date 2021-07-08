@@ -524,7 +524,7 @@ def DoubtclassRatings(request, id):
     # print(request.user.id)
 
     
-    registered_class = models.RegisterDoubtClass.objects.get(user=request.user.id, class_details=id)
+    registered_class = models.RegisterDoubtClass.objects.get(user=request.user.id, doubtclass=id)
     doubtclass_id = registered_class.doubtclass.id
     print("liveclass id: ",doubtclass_id)
     current_ratings = registered_class.ratings
