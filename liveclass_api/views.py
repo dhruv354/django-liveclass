@@ -461,6 +461,34 @@ def RegisterDoubtClassId(request, id):
         registered_live_class.registered_students.remove(registered_name.id)
         registered_live_class.save()
     
+# @csrf_exempt
+# @api_view(['POST'])
+# @permission_classes((IsAuthenticated, ))
+# def liveclassRatings(request, id):
+#     print((request.body))
+#     print(request.user.id)
+
+    
+#     registered_class = models.RegisteredClass.objects.get(user=request.user.id, id=id)
+#     liveclass_id = registered_class.class_details.id
+#     print("liveclass id: ",liveclass_id)
+#     current_ratings = registered_class.ratings
+#     data = json.loads(request.body)
+#     new_ratings = data['ratings']
+#     print("error here regsiteredclass.ratings")
+#     registered_class.ratings = new_ratings
+
+#     registered_class.save()
+#     liveclass = models.LiveClass_details.objects.get(id=liveclass_id)
+#     total_ratings = liveclass.ratings * liveclass.no_of_students_registered
+#     total_ratings = total_ratings - current_ratings + new_ratings
+#     students_registered = liveclass.no_of_students_registered
+#     liveclass.ratings = total_ratings/students_registered
+#     liveclass.save()
+#     return Response("your ratings noted", status=status.HTTP_200_OK)
+
+
+
 @csrf_exempt
 @api_view(['POST'])
 @permission_classes((IsAuthenticated, ))
@@ -469,8 +497,8 @@ def liveclassRatings(request, id):
     print(request.user.id)
 
     
-    registered_class = models.RegisteredClass.objects.get(user=request.user.id, id=id)
-    liveclass_id = registered_class.class_details.id
+    registered_class = models.RegisteredClass.objects.get(user=request.user.id, class_details=id)
+    liveclass_id = id
     print("liveclass id: ",liveclass_id)
     current_ratings = registered_class.ratings
     data = json.loads(request.body)
@@ -496,7 +524,7 @@ def DoubtclassRatings(request, id):
     # print(request.user.id)
 
     
-    registered_class = models.RegisterDoubtClass.objects.get(user=request.user.id, id=id)
+    registered_class = models.RegisterDoubtClass.objects.get(user=request.user.id, class_details=id)
     doubtclass_id = registered_class.doubtclass.id
     print("liveclass id: ",doubtclass_id)
     current_ratings = registered_class.ratings
