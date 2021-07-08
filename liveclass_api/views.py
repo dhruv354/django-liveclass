@@ -295,13 +295,54 @@ class DraftClassId(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Dest
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
+class ListDoubtDrafts(mixins.ListModelMixin, generics.GenericAPIView):
+    serializer_class = serializers.DoubtClass_serializer
+    queryset = models.DoubtClasses.objects.filter(isDraft=True)
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        if request.user.is_superuser:
+             return self.list(request)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+class DoubtDraftClassId(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin,  mixins.UpdateModelMixin, generics.GenericAPIView):
+
+    serializer_class = serializers.DoubtClass_serializer
+    queryset = models.DoubtClasses.objects.filter(isDraft=True)
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'id'
+
+    def get(self, request, id=None):
+        if request.user.is_superuser:
+            if id:
+                return self.retrieve(request, id)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        
+    
+    def put(self, request, id=None):
+        if request.user.is_superuser:
+            if id:
+                return self.update(request, id)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+        
+
+    def delete(self, request, id=None):
+        if request.user.is_superuser:
+            if id:
+                return self.destroy(request, id)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+
 
 #view that will list and create all doubtclasses
 
 class DoubtClass( mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
 
     serializer_class = serializers.DoubtClass_serializer
-    queryset = models.DoubtClasses.objects.all()
+    queryset = models.DoubtClasses.objects.filter(isDraft=False)
     permission_classes = [IsAuthenticated]
     def get(self, request):
         return self.list(request)
@@ -316,7 +357,7 @@ class DoubtClass( mixins.ListModelMixin, mixins.CreateModelMixin, generics.Gener
 #view for a particular doubt class object
 class DoubtClassId(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
     serializer_class = serializers.DoubtClass_serializer
-    queryset = models.DoubtClasses.objects.all()
+    queryset = models.DoubtClasses.objects.filter(isDraft=False)
     permission_classes = [IsAuthenticated]
     lookup_field = 'id'
 

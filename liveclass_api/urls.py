@@ -23,6 +23,8 @@ urlpatterns = [
     path('doubtclass/<int:id>/registered-students', views.RegisteredStudentsNamesdoubt.as_view()),
     path('drafts/', views.ListDrafts.as_view()),
     path('drafts/<int:id>', views.DraftClassId.as_view()),
+    path('doubtclassdrafts/', views.ListDoubtDrafts.as_view()),
+    path('doubtclassdrafts/<int:id>/', views.DoubtDraftClassId.as_view()),
     path('registerdoubtclass/', views.RegisterDoubtClass),
     path('registerdoubtclass/<int:id>/', views.RegisterDoubtClassId),
     # path('registerdoubtclass/<int:id>/registered-students', views.RegisteredStudentsNamesdoubt),
