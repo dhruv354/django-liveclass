@@ -342,7 +342,7 @@ class DoubtDraftClassId(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins
 class DoubtClass( mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
 
     serializer_class = serializers.DoubtClass_serializer
-    queryset = models.DoubtClasses.objects.filter(isDraft=False)
+    queryset = models.DoubtClasses.objects.all()
     permission_classes = [IsAuthenticated]
     def get(self, request):
         return self.list(request)
@@ -357,7 +357,7 @@ class DoubtClass( mixins.ListModelMixin, mixins.CreateModelMixin, generics.Gener
 #view for a particular doubt class object
 class DoubtClassId(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
     serializer_class = serializers.DoubtClass_serializer
-    queryset = models.DoubtClasses.objects.filter(isDraft=False)
+    queryset = models.DoubtClasses.objects.all()
     permission_classes = [IsAuthenticated]
     lookup_field = 'id'
 
