@@ -500,7 +500,7 @@ def liveclassRatings(request, id):
 
     
     registered_class = models.RegisteredClass.objects.get(user=request.user.id, class_details=id)
-    liveclass_id = id
+    liveclass_id = models.LiveClass_details.objects.get(id=id)
     print("liveclass id: ",liveclass_id)
     current_ratings = registered_class.ratings
    
@@ -516,7 +516,7 @@ def liveclassRatings(request, id):
     registered_class.ratings = new_ratings
 
     registered_class.save()
-    liveclass = models.LiveClass_details.objects.get(id=liveclass_id)
+    liveclass = models.LiveClass_details.objects.get(id=id)
     students_rated = liveclass.no_of_students_rated
     total_ratings = liveclass.ratings * students_rated
     total_ratings = total_ratings - current_ratings + new_ratings
@@ -535,7 +535,7 @@ def DoubtclassRatings(request, id):
 
     
     registered_class = models.RegisterDoubtClass.objects.get(user=request.user.id, doubtclass=id)
-    doubtclass_id = id
+    doubtclass_id = models.DoubtClasses.objects.get(id=id)
     print("liveclass id: ",doubtclass_id)
     current_ratings = registered_class.ratings
     #current ratings 0 indicates that the user hasn't rated yet
@@ -658,4 +658,32 @@ class AllChapterNames(mixins.ListModelMixin, generics.GenericAPIView):
 
     def get(self, request):
         return self.list(request)
+
+
+# @csrf_exempt
+# @api_view(['POST', 'GET', 'DELETE'])
+# @permission_classes((IsAuthenticated, ))
+# def CreateZoomMeetings(request):
+
+#     #zoom credentials while registering your app on zoom
+#     try:
+#         my_zoom = ZoomMeetings(credentials['API KEY'],credentials['API SECRET'],credentials['email'])
+#     except Exception as e:
+#         print(e)
+#         return Response("credentials are wrong", status=status.HTTP_400_BAD_REQUEST)
+#     if request.method == 'POST':
+#         #zoom url
+#         date = request.POST['date']
+#         topic = request.POST['topic']
+#         duration = request.POST['duration']
+#         password = request.POST['password']
+#         create_meeting = my_zoom.CreateMeeting(date, topic, duration, password)
+#         return Response(create_meeting, status=status.HTTP_200_OK)
+
+#     elif request.method == 'GET':
+#         return my_zoom.GetMeeting(request.GET['meeting_id'])
+
+#     elif request.method == 'DELETE':
+#         my_zoom.DeleteMeeting(request.GET['meeting_id'])
+#         return Response("successfully deleted", status=status.HTTP_200_OK)
 
