@@ -550,7 +550,7 @@ def DoubtclassRatings(request, id):
     registered_class.ratings = new_ratings
 
     registered_class.save()
-    doubtclass = models.DoubtClasses.objects.get(id=doubtclass_id)
+    doubtclass = models.DoubtClasses.objects.get(id=id)
     students_rated = doubtclass.no_of_students_rated
     total_ratings = doubtclass.ratings * students_rated
     total_ratings = total_ratings - current_ratings + new_ratings
