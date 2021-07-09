@@ -14,6 +14,8 @@ from django.utils import timezone
 from datetime import datetime
 from rest_framework.permissions import BasePermission, IsAuthenticated, SAFE_METHODS
 from rest_framework.serializers import Serializer
+from django_zoom_meetings import ZoomMeetings
+from .zoom_credentials import credentials
 import json
 
 
@@ -342,7 +344,7 @@ class DoubtDraftClassId(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins
 class DoubtClass( mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
 
     serializer_class = serializers.DoubtClass_serializer
-    queryset = models.DoubtClasses.objects.all()
+    queryset = models.DoubtClasses.objects.filter(isDraft=False)
     permission_classes = [IsAuthenticated]
     def get(self, request):
         return self.list(request)
@@ -357,7 +359,7 @@ class DoubtClass( mixins.ListModelMixin, mixins.CreateModelMixin, generics.Gener
 #view for a particular doubt class object
 class DoubtClassId(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
     serializer_class = serializers.DoubtClass_serializer
-    queryset = models.DoubtClasses.objects.all()
+    queryset = models.DoubtClasses.objects.filter(isDraft=False)
     permission_classes = [IsAuthenticated]
     lookup_field = 'id'
 
@@ -501,17 +503,25 @@ def liveclassRatings(request, id):
     liveclass_id = id
     print("liveclass id: ",liveclass_id)
     current_ratings = registered_class.ratings
+   
+    #current ratings 0 indicates that the user hasn't rated yet
+    if current_ratings == 0:
+        liveclass_id.no_of_students_rated += 1
     data = json.loads(request.body)
     new_ratings = data['ratings']
-    print("error here regsiteredclass.ratings")
+    if new_ratings == 0:
+        if current_ratings == 0:
+            liveclass_id.no_of_students_rated -= 1
+        return Response("minimum allowed rating is 1 so update your rating", status=status.HTTP_400_BAD_REQUEST)
     registered_class.ratings = new_ratings
 
     registered_class.save()
     liveclass = models.LiveClass_details.objects.get(id=liveclass_id)
-    total_ratings = liveclass.ratings * liveclass.no_of_students_registered
+    students_rated = liveclass.no_of_students_rated
+    total_ratings = liveclass.ratings * students_rated
     total_ratings = total_ratings - current_ratings + new_ratings
-    students_registered = liveclass.no_of_students_registered
-    liveclass.ratings = total_ratings/students_registered
+    
+    liveclass.ratings = total_ratings/students_rated
     liveclass.save()
     return Response("your ratings noted", status=status.HTTP_200_OK)
 
@@ -525,22 +535,27 @@ def DoubtclassRatings(request, id):
 
     
     registered_class = models.RegisterDoubtClass.objects.get(user=request.user.id, doubtclass=id)
-    doubtclass_id = registered_class.doubtclass.id
+    doubtclass_id = id
     print("liveclass id: ",doubtclass_id)
     current_ratings = registered_class.ratings
-    print("current_ratings: ", current_ratings)
+    #current ratings 0 indicates that the user hasn't rated yet
+    if current_ratings == 0:
+        doubtclass_id.no_of_students_rated += 1
     data = json.loads(request.body)
     new_ratings = data['ratings']
-    print("new ratings :", new_ratings)
+    if new_ratings == 0:
+        if current_ratings == 0:
+            doubtclass_id.no_of_students_rated -= 1
+        return Response("minimum allowed rating is 1 so update your rating", status=status.HTTP_400_BAD_REQUEST)
     registered_class.ratings = new_ratings
 
     registered_class.save()
     doubtclass = models.DoubtClasses.objects.get(id=doubtclass_id)
-    total_ratings = doubtclass.ratings * doubtclass.no_of_students_registered
+    students_rated = doubtclass.no_of_students_rated
+    total_ratings = doubtclass.ratings * students_rated
     total_ratings = total_ratings - current_ratings + new_ratings
-    print("total_ratings", total_ratings)
-    students_registered = doubtclass.no_of_students_registered
-    doubtclass.ratings = total_ratings/students_registered
+    
+    doubtclass.ratings = total_ratings/students_rated
     doubtclass.save()
     return Response("your ratings noted", status=status.HTTP_200_OK)
     # except Exception as e:
@@ -643,3 +658,4 @@ class AllChapterNames(mixins.ListModelMixin, generics.GenericAPIView):
 
     def get(self, request):
         return self.list(request)
+
