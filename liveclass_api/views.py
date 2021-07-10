@@ -255,7 +255,7 @@ def RegisterClass(request):
 class ListDrafts(mixins.ListModelMixin, generics.GenericAPIView):
 
     serializer_class = serializers.LiveClass_details_serializer
-    queryset = models.LiveClass_details.objects.filter(isDraft=True)
+    queryset = models.LiveClass_details.objects.all()
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -268,7 +268,7 @@ class ListDrafts(mixins.ListModelMixin, generics.GenericAPIView):
 class DraftClassId(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin,  mixins.UpdateModelMixin, generics.GenericAPIView):
 
     serializer_class = serializers.LiveClass_details_serializer
-    queryset = models.LiveClass_details.objects.filter(isDraft=True)
+    queryset = models.LiveClass_details.objects.all()
     permission_classes = [IsAuthenticated]
     lookup_field = 'id'
 
