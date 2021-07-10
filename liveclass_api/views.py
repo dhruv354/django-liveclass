@@ -495,7 +495,7 @@ def RegisterDoubtClassId(request, id):
 @api_view(['POST'])
 @permission_classes((IsAuthenticated, ))
 def liveclassRatings(request, id):
-    print((request.body))
+    # print((request.body))
     print(request.user.id)
 
     
@@ -507,11 +507,15 @@ def liveclassRatings(request, id):
     #current ratings 0 indicates that the user hasn't rated yet
     if current_ratings == 0:
         liveclass_id.no_of_students_rated += 1
-    data = json.loads(request.body)
+        liveclass_id.save()
+    data = request.data
+    print("error here ")
     new_ratings = data['ratings']
+    print(new_ratings)
     if new_ratings == 0:
         if current_ratings == 0:
             liveclass_id.no_of_students_rated -= 1
+            liveclass_id.save()
         return Response("minimum allowed rating is 1 so update your rating", status=status.HTTP_400_BAD_REQUEST)
     registered_class.ratings = new_ratings
 
@@ -520,6 +524,7 @@ def liveclassRatings(request, id):
     students_rated = liveclass.no_of_students_rated
     total_ratings = liveclass.ratings * students_rated
     total_ratings = total_ratings - current_ratings + new_ratings
+    print(total_ratings)
     if total_ratings == 0 or students_rated == 0:
         return Response("students must rate", status=status.HTTP_400_BAD_REQUEST)
     liveclass.ratings = total_ratings/students_rated
