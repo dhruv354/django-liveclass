@@ -503,6 +503,7 @@ def liveclassRatings(request, id):
     liveclass_id = models.LiveClass_details.objects.get(id=id)
     print("liveclass id: ",liveclass_id)
     current_ratings = registered_class.ratings
+    total_ratings_initial = liveclass_id.ratings * liveclass_id.no_of_students_rated
    
     #current ratings 0 indicates that the user hasn't rated yet
     if current_ratings == 0:
@@ -522,8 +523,8 @@ def liveclassRatings(request, id):
     registered_class.save()
     liveclass = models.LiveClass_details.objects.get(id=id)
     students_rated = liveclass.no_of_students_rated
-    total_ratings = liveclass.ratings * students_rated
-    total_ratings = total_ratings - current_ratings + new_ratings
+    # total_ratings = liveclass.ratings * students_rated
+    total_ratings = total_ratings_initial - current_ratings + new_ratings
     print(total_ratings)
     if total_ratings == 0 or students_rated == 0:
         return Response("students must rate", status=status.HTTP_400_BAD_REQUEST)
@@ -544,6 +545,7 @@ def DoubtclassRatings(request, id):
     doubtclass_id = models.DoubtClasses.objects.get(id=id)
     print("liveclass id: ",doubtclass_id)
     current_ratings = registered_class.ratings
+    total_ratings_initial = doubtclass_id.ratings * doubtclass_id.no_of_students_rated
     #current ratings 0 indicates that the user hasn't rated yet
     if current_ratings == 0:
         doubtclass_id.no_of_students_rated += 1
@@ -560,8 +562,8 @@ def DoubtclassRatings(request, id):
     registered_class.save()
     doubtclass = models.DoubtClasses.objects.get(id=id)
     students_rated = doubtclass.no_of_students_rated
-    total_ratings = doubtclass.ratings * students_rated
-    total_ratings = total_ratings - current_ratings + new_ratings
+    # total_ratings = doubtclass.ratings * students_rated
+    total_ratings = total_ratings_initial - current_ratings + new_ratings
     if total_ratings == 0 or students_rated == 0:
         return Response("students must rate", status=status.HTTP_400_BAD_REQUEST)
     doubtclass.ratings = total_ratings/students_rated
