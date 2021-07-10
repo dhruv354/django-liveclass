@@ -547,11 +547,13 @@ def DoubtclassRatings(request, id):
     #current ratings 0 indicates that the user hasn't rated yet
     if current_ratings == 0:
         doubtclass_id.no_of_students_rated += 1
-    data = json.loads(request.body)
+        doubtclass_id.save()
+    data = request.data
     new_ratings = data['ratings']
     if new_ratings == 0:
         if current_ratings == 0:
             doubtclass_id.no_of_students_rated -= 1
+            doubtclass_id.save()
         return Response("minimum allowed rating is 1 so update your rating", status=status.HTTP_400_BAD_REQUEST)
     registered_class.ratings = new_ratings
 
