@@ -135,7 +135,7 @@ class SavedClass(models.Model):
 class RegisteredClass(models.Model):
     class_details = models.ForeignKey(LiveClass_details, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    ratings = models.FloatField(default=0)
+    ratings = models.IntegerField(default=0)
         
     class Meta:
         verbose_name_plural = 'RegisteredClass'
@@ -148,7 +148,7 @@ class RegisteredClass(models.Model):
 class RegisterDoubtClass(models.Model):
     doubtclass = models.ForeignKey(DoubtClasses, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    ratings = models.FloatField(default=0)
+    ratings = models.IntegerField(default=0)
         
     class Meta:
         verbose_name_plural = 'RegisteDoubtClass'

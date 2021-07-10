@@ -520,7 +520,8 @@ def liveclassRatings(request, id):
     students_rated = liveclass.no_of_students_rated
     total_ratings = liveclass.ratings * students_rated
     total_ratings = total_ratings - current_ratings + new_ratings
-    
+    if total_ratings == 0 or students_rated == 0:
+        return Response("students must rate", status=status.HTTP_400_BAD_REQUEST)
     liveclass.ratings = total_ratings/students_rated
     liveclass.save()
     return Response("your ratings noted", status=status.HTTP_200_OK)
@@ -554,7 +555,8 @@ def DoubtclassRatings(request, id):
     students_rated = doubtclass.no_of_students_rated
     total_ratings = doubtclass.ratings * students_rated
     total_ratings = total_ratings - current_ratings + new_ratings
-    
+    if total_ratings == 0 or students_rated == 0:
+        return Response("students must rate", status=status.HTTP_400_BAD_REQUEST)
     doubtclass.ratings = total_ratings/students_rated
     doubtclass.save()
     return Response("your ratings noted", status=status.HTTP_200_OK)
