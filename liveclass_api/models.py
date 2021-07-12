@@ -84,6 +84,8 @@ class DoubtClasses(models.Model):
     no_of_students_rated = models.IntegerField(default=0)
     no_of_students_attended = models.IntegerField(default=0)
     mentor_id = models.ForeignKey(Mentor, on_delete=models.CASCADE, null=True)
+    meeting_url = models.TextField(null=True, blank=True)
+    meeting_id = models.CharField(default='', max_length=50, null=True, blank=True)
     isDraft = models.BooleanField(default=False)
 
     class Meta:
@@ -111,6 +113,8 @@ class LiveClass_details(models.Model):
     no_of_students_registered = models.IntegerField(default=0)
     registered_students = models.ManyToManyField(RegisteredNames, null=True, blank=True)
     no_of_students_attended = models.IntegerField(default=0)
+    meeting_url = models.TextField(null=True, blank=True)
+    meeting_id = models.CharField(default='',max_length=50, null=True, blank=True)
     class Meta:
         verbose_name_plural = 'LiveClass_details'
         

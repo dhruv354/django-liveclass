@@ -31,6 +31,8 @@ urlpatterns = [
     path('registerdoubtclass/ratings/<int:id>', views.DoubtclassRatings),
     # path('registerclass/<str:type_of_class>/<int:id>', views.RegisterClassId2),
     # path('registerclassnew/', views.RegisterClass2),
-    # path('zoom-meetings/', views.CreateZoomMeetings)
+    path('get-zoom-meetings/<str:type_of_class>/<int:id>/', views.GetZoomMeetings),
+    path('create-zoom-meetings/<str:type_of_class>/<int:id>/', views.createZoomMeetings),
+
    
 ]

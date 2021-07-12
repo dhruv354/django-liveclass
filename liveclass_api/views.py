@@ -11,12 +11,14 @@ from django.contrib.auth.decorators import login_required
 from rest_framework.decorators import api_view, permission_classes
 from django.http import HttpResponse, JsonResponse
 from django.utils import timezone
-from datetime import datetime
+import datetime 
 from rest_framework.permissions import BasePermission, IsAuthenticated, SAFE_METHODS
 from rest_framework.serializers import Serializer
 from django_zoom_meetings import ZoomMeetings
 from .zoom_credentials import credentials
 import json
+import jwt
+import http
 
 
 from . import serializers
@@ -670,31 +672,104 @@ class AllChapterNames(mixins.ListModelMixin, generics.GenericAPIView):
     def get(self, request):
         return self.list(request)
 
+import requests
+import time
 
-# @csrf_exempt
-# @api_view(['POST', 'GET', 'DELETE'])
-# @permission_classes((IsAuthenticated, ))
-# def CreateZoomMeetings(request):
+@csrf_exempt
+@api_view(['POST', 'GET', 'DELETE'])
+@permission_classes((IsAuthenticated, ))
+def GetZoomMeetings(request, type_of_class, id):
 
-#     #zoom credentials while registering your app on zoom
-#     try:
-#         my_zoom = ZoomMeetings(credentials['API KEY'],credentials['API SECRET'],credentials['email'])
-#     except Exception as e:
-#         print(e)
-#         return Response("credentials are wrong", status=status.HTTP_400_BAD_REQUEST)
-#     if request.method == 'POST':
-#         #zoom url
-#         date = request.POST['date']
-#         topic = request.POST['topic']
-#         duration = request.POST['duration']
-#         password = request.POST['password']
-#         create_meeting = my_zoom.CreateMeeting(date, topic, duration, password)
-#         return Response(create_meeting, status=status.HTTP_200_OK)
+    if type_of_class == 'liveclass':
+        try:
+            liveclass = models.LiveClass_details.objects.get(id=id)
+            if liveclass.meeting_id == '':
+                return Response("zoom meeting has not been created for this class", status=status.HTTP_400_BAD_REQUEST)
 
-#     elif request.method == 'GET':
-#         return my_zoom.GetMeeting(request.GET['meeting_id'])
+            meeting_id = int(liveclass.meeting_id)
+        except Exception as e:
+            return Response("this class does not exists", status=status.HTTP_400_BAD_REQUEST)
 
-#     elif request.method == 'DELETE':
-#         my_zoom.DeleteMeeting(request.GET['meeting_id'])
-#         return Response("successfully deleted", status=status.HTTP_200_OK)
+    elif type_of_class == 'doubtclass':
+        try:
+            doubtclass = models.DoubtClasses.objects.get(id=id)
+            if doubtclass.meeting_id == '':
+                return Response("zoom meeting has not been created for this class", status=status.HTTP_400_BAD_REQUEST)
+            meeting_id = int(doubtclass.meeting_id)
+        except Exception as e:
+            return Response("this class does not exists", status=status.HTTP_400_BAD_REQUEST)
 
+
+    token = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOm51bGwsImlzcyI6IldqOGFLU0lTUm5lNDhucnFCS3BPQlEiLCJleHAiOjE2MjY2NjI1NzQsImlhdCI6MTYyNjA1Nzc3NX0.rb55SRVcByMkr1Iy0D_lc7g041bWlbeCUFoMD8rGBgk'
+    headers = {'authorization': 'Bearer %s' % token,
+               'content-type': 'application/json'}
+    print("error1")
+    print(type(request.data))
+    r = requests.get(
+        f'https://api.zoom.us/v2/meetings/' + str(meeting_id), 
+      headers=headers)
+    return Response(r.json())
+    
+
+
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes((IsAuthenticated, ))
+def createZoomMeetings(request, type_of_class, id):
+
+    # print(type(request.data))
+    token = jwt.encode(
+        
+        # Create a payload of the token containing 
+        # API Key & expiration time
+        {'iss': credentials['API-KEY'], 'exp': time.time() + 5000},
+          
+        # Secret used to generate token signature
+        credentials['API-SECRET'],
+          
+        # Specify the hashing alg
+        algorithm='HS256'
+    )
+    # conn.request('POST', '/users/me/meetings/', headers=headers)
+    # res = conn.getresponse()
+    # data = res.read()
+    # data = data.decode('utf8').replace("'", '"')
+    # return Response(data)
+
+      
+
+
+    # payload = {'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=30),
+    #        'iss': credentials['API-KEY']
+    #       }     
+    # token = jwt.encode(payload, credentials['API-SECRET']).decode("utf-8")
+    print(request.data)
+    token = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOm51bGwsImlzcyI6IldqOGFLU0lTUm5lNDhucnFCS3BPQlEiLCJleHAiOjE2MjY2NjI1NzQsImlhdCI6MTYyNjA1Nzc3NX0.rb55SRVcByMkr1Iy0D_lc7g041bWlbeCUFoMD8rGBgk'
+    headers = {'authorization': 'Bearer %s' % token,
+               'content-type': 'application/json'}
+    print("error1")
+    print(type(request.data))
+    r = requests.post(
+        f'https://api.zoom.us/v2/users/me/meetings', 
+      headers=headers, data=json.dumps(request.data))
+  
+    print("\n creating zoom meeting ... \n")
+
+    print(r.json())
+    y = json.loads(r.text)
+    join_URL = y["join_url"]
+    meetingPassword = y["password"]
+
+    if type_of_class == 'liveclass':
+        liveclass = models.LiveClass_details.objects.get(id=id)
+        print(liveclass)
+        liveclass.meeting_url = join_URL
+        liveclass.meeting_id = str(r.json()['id'])
+        liveclass.save()
+    if type_of_class == 'doubtclass':
+        doubtclass = models.DoubtClasses.objects.get(id=id)
+        doubtclass.meeting_url = join_URL
+        doubtclass.meeting_id = str(r.json()['id'])
+        doubtclass.save()
+  
+    return Response(r.json())
