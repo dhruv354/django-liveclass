@@ -19,6 +19,7 @@ from .zoom_credentials import credentials
 import json
 import jwt
 import http
+import requests
 
 
 from . import serializers
@@ -63,6 +64,66 @@ class LiveClassView(mixins.ListModelMixin,
 
     def post(self, request, *args, **kwargs):
         if request.user.is_superuser:
+            # print(type(request.data))
+            token = jwt.encode(
+        
+        # Create a payload of the token containing 
+        # API Key & expiration time
+                {'iss': credentials['API-KEY'], 'exp': time.time() + 5000},
+                
+                # Secret used to generate token signature
+                credentials['API-SECRET'],
+                
+                # Specify the hashing alg
+                algorithm='HS256'
+            )
+            # payload = {'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=30),
+            #        'iss': credentials['API-KEY']
+            #       }     
+            # token = jwt.encode(payload, credentials['API-SECRET']).decode("utf-8")
+            print(request.data)
+
+            token = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOm51bGwsImlzcyI6IldqOGFLU0lTUm5lNDhucnFCS3BPQlEiLCJleHAiOjE2MjY2NjI1NzQsImlhdCI6MTYyNjA1Nzc3NX0.rb55SRVcByMkr1Iy0D_lc7g041bWlbeCUFoMD8rGBgk'
+            headers = {'authorization': 'Bearer %s' % token,
+                    'content-type': 'application/json'}
+            print(type(request.data))
+            print(request.data['start_time'])
+            print(request.data['chapter_details'])
+            
+            meetingdetails = {"topic": str(request.data['chapter_details']),
+                  "type": 2,
+                  "start_time": str(request.data['start_time']),
+                  "duration": "45",
+                  "timezone": "Europe/Madrid",
+                  "agenda": "test",
+  
+                  "recurrence": {"type": 1,
+                                 "repeat_interval": 1
+                                 },
+                  "settings": {"host_video": "true",
+                               "participant_video": "true",
+                               "join_before_host": "False",
+                               "mute_upon_entry": "False",
+                               "watermark": "true",
+                               "audio": "voip",
+                               "auto_recording": "cloud"
+                               }
+                  }
+  
+
+            r = requests.post(
+                f'https://api.zoom.us/v2/users/me/meetings', 
+            headers=headers, data=json.dumps(meetingdetails))
+        
+            print("\n creating zoom meeting ... \n")
+
+            print(r.json())
+            y = json.loads(r.text)
+            join_URL = y["join_url"]
+            request.data._mutable = True
+            request.data['meeting_url'] = join_URL
+            request.data['meeting_id'] = str(r.json()['id'])
+            request.data._mutable = False
             return self.create(request, *args, **kwargs)
         else:
             return Response(status=status.HTTP_403_FORBIDDEN)
