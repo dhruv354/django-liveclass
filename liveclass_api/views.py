@@ -120,10 +120,10 @@ class LiveClassView(mixins.ListModelMixin,
             print(r.json())
             y = json.loads(r.text)
             join_URL = y["join_url"]
-            request.data._mutable = True
+            request.post._mutable = True
             request.data['meeting_url'] = join_URL
             request.data['meeting_id'] = str(r.json()['id'])
-            request.data._mutable = False
+            request.post._mutable = False
             return self.create(request, *args, **kwargs)
         else:
             return Response(status=status.HTTP_403_FORBIDDEN)
